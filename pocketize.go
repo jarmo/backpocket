@@ -7,6 +7,7 @@ import (
 	"strings"
 	"path"
 	"regexp"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -19,9 +20,10 @@ import (
 const articlesRootDir = "articles"
 
 func main() {
-	uri, err := url.Parse(os.Args[1])
+	uri, err := articleUri(os.Args)
 	if err != nil {
-		fmt.Printf("failed to parse url %v\n", err)
+		fmt.Println(err)
+		fmt.Println("\nUSAGE: pocketize ARTICLE_URL")
 		os.Exit(1)
 	}
 
@@ -49,6 +51,24 @@ func main() {
 			fmt.Println(createArticleWithFailedReadability(uri, err))
 		}
 	}
+}
+
+func articleUri(args []string) (*url.URL, error) {
+	if len(args) < 2 {
+		return nil, errors.New("Not enough arguments")
+	}
+
+	rawUrl := args[1]
+	uri, err := url.Parse(rawUrl)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Failed to parse URL %v", err))
+	}
+
+	if uri.Scheme == "" {
+		return nil, errors.New(fmt.Sprintf("URL in unsupported format %v", rawUrl))
+	}
+
+	return uri, nil
 }
 
 func createArticle(uri *url.URL, article readability.Article) string {
