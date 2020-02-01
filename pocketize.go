@@ -29,11 +29,7 @@ func main() {
 
 	article, err := readability.FromURL(uri.String(), 30 * time.Second)
 	if err == nil {
-		articleFilePath := createArticleFilePath(uri, article)
-		articleFile, _ := os.Create(articleFilePath)
-		defer articleFile.Close()
-		articleFile.WriteString(articleWithStyling(uri, article))
-		fmt.Println(articleFilePath)
+		fmt.Println(createArticle(uri, article))
 	} else {
 		//fmt.Printf("failed to parse %s, %v\n", uri, err)
 		resp, err := http.Get(uri.String())
@@ -43,31 +39,35 @@ func main() {
 
 			article, err := readability.FromReader(resp.Body, uri.String())
 			if err == nil {
-				articleFilePath := createArticleFilePath(uri, article)
-				articleFile, _ := os.Create(articleFilePath)
-				defer articleFile.Close()
-				articleFile.WriteString(articleWithStyling(uri, article))
-				fmt.Println(articleFilePath)
+				fmt.Println(createArticle(uri, article))
 			} else {
 				//fmt.Printf("failed to parse %s: %v\n", uri, err)
-				articleFilePath := createFailedToFetchArticleFilePath(uri)
-				articleFile, _ := os.Create(articleFilePath)
-				defer articleFile.Close()
-				articleFile.WriteString(failedToFetchArticleWithStyling(uri, err))
-				fmt.Println(articleFilePath)
+				fmt.Println(createArticleWithFailedReadability(uri, err))
 			}
 		} else {
 			//fmt.Printf("failed to download %s: %v\n", uri, err)
-			articleFilePath := createFailedToFetchArticleFilePath(uri)
-			articleFile, _ := os.Create(articleFilePath)
-			defer articleFile.Close()
-			articleFile.WriteString(failedToFetchArticleWithStyling(uri, err))
-			fmt.Println(articleFilePath)
+			fmt.Println(createArticleWithFailedReadability(uri, err))
 		}
 	}
 }
 
-func createFailedToFetchArticleFilePath(address *url.URL) string {
+func createArticle(uri *url.URL, article readability.Article) string {
+	articleFilePath := createArticleFilePath(uri, article)
+	articleFile, _ := os.Create(articleFilePath)
+	defer articleFile.Close()
+	articleFile.WriteString(articleWithStyling(uri, article))
+	return articleFilePath
+}
+
+func createArticleWithFailedReadability(uri *url.URL, err error) string {
+	articleFilePath := createArticleWithFailedReadabilityFilePath(uri)
+	articleFile, _ := os.Create(articleFilePath)
+	defer articleFile.Close()
+	articleFile.WriteString(articleWithFailedReadabilityWithStyling(uri, err))
+	return articleFilePath
+}
+
+func createArticleWithFailedReadabilityFilePath(address *url.URL) string {
 	return path.Join(articlesRootDir, fmt.Sprintf("%s-%s.html", time.Now().Format("2006-01-02"), formattedHost(address)))
 }
 
@@ -118,9 +118,9 @@ func articleWithStyling(uri *url.URL, article readability.Article) string {
 		article.Excerpt,
 		byline(article), siteName(uri, article), readingTime(article),
 		archivedAt.Format(time.RFC3339), article.Content))
-}
+	}
 
-func failedToFetchArticleWithStyling(address *url.URL, err error) string {
+func articleWithFailedReadabilityWithStyling(address *url.URL, err error) string {
 	return fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
