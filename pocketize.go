@@ -16,6 +16,8 @@ import (
 	readability "github.com/go-shiori/go-readability"
 )
 
+const articlesRootDir = "articles"
+
 func main() {
 	uri, err := url.Parse(os.Args[1])
 	if err != nil {
@@ -23,39 +25,63 @@ func main() {
 		os.Exit(1)
 	}
 
-	replaceSchemeRegexp := regexp.MustCompile("http(s)?://")
-	replaceInvalidCharactersRegexp := regexp.MustCompile("[<>:\"\\|?*=&;]")
-	articleDir := "articles/" + replaceInvalidCharactersRegexp.ReplaceAllString(replaceSchemeRegexp.ReplaceAllString(uri.String(), ""), "_")
-	os.MkdirAll(articleDir, os.ModePerm)
-
-	articlePath := path.Join(articleDir, "index.html")
-
-	articleFile, _ := os.Create(articlePath)
-	defer articleFile.Close()
+	os.MkdirAll(articlesRootDir, os.ModePerm)
 
 	article, err := readability.FromURL(uri.String(), 30 * time.Second)
-	if err != nil {
+	if err == nil {
+		articleFilePath := createArticleFilePath(uri, article)
+		articleFile, _ := os.Create(articleFilePath)
+		defer articleFile.Close()
+		articleFile.WriteString(articleWithStyling(uri, article))
+		fmt.Println(articleFilePath)
+	} else {
 		//fmt.Printf("failed to parse %s, %v\n", uri, err)
 		resp, err := http.Get(uri.String())
-		defer resp.Body.Close()
 
-		if err != nil {
-			//fmt.Printf("failed to download %s: %v\n", uri, err)
-			articleFile.WriteString(addressFile(uri, err))
-		} else {
+		if err == nil {
+			defer resp.Body.Close()
+
 			article, err := readability.FromReader(resp.Body, uri.String())
-			if err != nil {
-				//fmt.Printf("failed to parse %s: %v\n", uri, err)
-				articleFile.WriteString(addressFile(uri, err))
-			} else {
+			if err == nil {
+				articleFilePath := createArticleFilePath(uri, article)
+				articleFile, _ := os.Create(articleFilePath)
+				defer articleFile.Close()
 				articleFile.WriteString(articleWithStyling(uri, article))
+				fmt.Println(articleFilePath)
+			} else {
+				//fmt.Printf("failed to parse %s: %v\n", uri, err)
+				articleFilePath := createFailedToFetchArticleFilePath(uri)
+				articleFile, _ := os.Create(articleFilePath)
+				defer articleFile.Close()
+				articleFile.WriteString(failedToFetchArticleWithStyling(uri, err))
+				fmt.Println(articleFilePath)
 			}
+		} else {
+			//fmt.Printf("failed to download %s: %v\n", uri, err)
+			articleFilePath := createFailedToFetchArticleFilePath(uri)
+			articleFile, _ := os.Create(articleFilePath)
+			defer articleFile.Close()
+			articleFile.WriteString(failedToFetchArticleWithStyling(uri, err))
+			fmt.Println(articleFilePath)
 		}
-	} else {
-		articleFile.WriteString(articleWithStyling(uri, article))
 	}
+}
 
-	fmt.Println(articlePath)
+func createFailedToFetchArticleFilePath(address *url.URL) string {
+	return path.Join(articlesRootDir, fmt.Sprintf("%s-%s.html", time.Now().Format("2006-01-02"), formattedHost(address)))
+}
+
+func createArticleFilePath(address *url.URL, article readability.Article) string {
+	return path.Join(articlesRootDir, fmt.Sprintf("%s-%s-%s.html", time.Now().Format("2006-01-02"), formattedTitle(article.Title), formattedHost(address)))
+}
+
+func formattedTitle(title string) string {
+	replaceInvalidCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%^ ]")
+	return replaceInvalidCharactersRegexp.ReplaceAllString(strings.ReplaceAll(title, "&", "and"), "-")
+}
+
+func formattedHost(address *url.URL) string {
+	return strings.ReplaceAll(address.Host, ".", "-")
 }
 
 func articleWithStyling(uri *url.URL, article readability.Article) string {
@@ -94,7 +120,7 @@ func articleWithStyling(uri *url.URL, article readability.Article) string {
 		archivedAt.Format(time.RFC3339), article.Content))
 }
 
-func addressFile(address *url.URL, err error) string {
+func failedToFetchArticleWithStyling(address *url.URL, err error) string {
 	return fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
