@@ -97,7 +97,8 @@ func createArticleFilePath(address *url.URL, article readability.Article) string
 
 func formattedTitle(title string) string {
 	replaceInvalidCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%^ ]")
-	return replaceInvalidCharactersRegexp.ReplaceAllString(strings.ReplaceAll(title, "&", "and"), "-")
+	replaceDuplicateAdjacentDashesRegexp := regexp.MustCompile("-{2,}")
+	return replaceDuplicateAdjacentDashesRegexp.ReplaceAllString(replaceInvalidCharactersRegexp.ReplaceAllString(strings.ReplaceAll(title, "&", "and"), "-"), "-")
 }
 
 func formattedHost(address *url.URL) string {
