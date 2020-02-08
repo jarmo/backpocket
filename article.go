@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path"
-	"regexp"
 	"strings"
 	"time"
 
@@ -40,7 +38,7 @@ func CreateArticle(url *url.URL) string {
 }
 
 func createReadableArticle(url *url.URL, article readability.Article) string {
-	articleFilePath := readableArticleFilePath(url, article)
+	articleFilePath := ReadableArticleFilePath(url, article)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
 	args := RenderArgs{
@@ -60,7 +58,7 @@ func createReadableArticle(url *url.URL, article readability.Article) string {
 }
 
 func createNonReadableArticle(url *url.URL, err error) string {
-	articleFilePath := nonReadableArticleFilePath(url)
+	articleFilePath := NonReadableArticleFilePath(url)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
 	args := RenderArgs{
@@ -69,24 +67,6 @@ func createNonReadableArticle(url *url.URL, err error) string {
 	}
 	articleFile.WriteString(Render(nonReadableArticleHTML(), args))
 	return articleFilePath
-}
-
-func readableArticleFilePath(address *url.URL, article readability.Article) string {
-	return path.Join(articlesRootDir, fmt.Sprintf("%s-%s-%s.html", time.Now().Format("2006-01-02"), formattedTitle(article.Title), formattedHost(address)))
-}
-
-func nonReadableArticleFilePath(address *url.URL) string {
-	return path.Join(articlesRootDir, fmt.Sprintf("%s-%s.html", time.Now().Format("2006-01-02"), formattedHost(address)))
-}
-
-func formattedTitle(title string) string {
-	replaceInvalidCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%^ ]")
-	replaceDuplicateAdjacentDashesRegexp := regexp.MustCompile("-{2,}")
-	return replaceDuplicateAdjacentDashesRegexp.ReplaceAllString(replaceInvalidCharactersRegexp.ReplaceAllString(strings.ReplaceAll(title, "&", "and"), "-"), "-")
-}
-
-func formattedHost(address *url.URL) string {
-	return strings.ReplaceAll(address.Host, ".", "-")
 }
 
 func readableArticleHTML() string {
