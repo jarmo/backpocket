@@ -13,6 +13,7 @@ func ReadableArticleHTML() string {
 				<meta content="utf-8" http-equiv="encoding">
 				<title>{{.Title}}</title>
 				<style>%s</style>
+				<style>%s</style>
 			</head>
 			<body>
 				<header>
@@ -27,7 +28,7 @@ func ReadableArticleHTML() string {
 				<article>{{.Content}}</article>
 			</body>
 		</html>
-		`, Styles())
+		`, ModernNormalizeStyles(), Styles())
 }
 
 func NonReadableArticleHTML() string {
@@ -39,6 +40,7 @@ func NonReadableArticleHTML() string {
 		<meta content="utf-8" http-equiv="encoding">
 		<title>{{.Address}}</title>
 		<style>%s</style>
+		<style>%s</style>
 	</head>
 	<body>
 	  <header>
@@ -47,5 +49,5 @@ func NonReadableArticleHTML() string {
 	  </header>
 	</body>
 </html>
-	`, Styles())
+	`, ModernNormalizeStyles(), Styles())
 }
