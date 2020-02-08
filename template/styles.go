@@ -1,4 +1,4 @@
-package main
+package template
 
 func Styles() string {
 	return `

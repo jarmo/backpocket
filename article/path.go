@@ -1,4 +1,4 @@
-package main
+package article
 
 import (
 	"fmt"
@@ -11,12 +11,14 @@ import (
 	readability "github.com/go-shiori/go-readability"
 )
 
+const RootDir = "articles"
+
 func ReadableArticleFilePath(address *url.URL, article readability.Article) string {
-	return path.Join(articlesRootDir, fmt.Sprintf("%s-%s-%s.html", time.Now().Format("2006-01-02"), formattedTitle(article.Title), formattedHost(address)))
+	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.html", time.Now().Format("2006-01-02"), formattedTitle(article.Title), formattedHost(address)))
 }
 
 func NonReadableArticleFilePath(address *url.URL) string {
-	return path.Join(articlesRootDir, fmt.Sprintf("%s-%s.html", time.Now().Format("2006-01-02"), formattedHost(address)))
+	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", time.Now().Format("2006-01-02"), formattedHost(address)))
 }
 
 func formattedTitle(title string) string {

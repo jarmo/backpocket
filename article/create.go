@@ -1,15 +1,16 @@
-package main
+package article
 
 import (
 	"net/http"
 	"net/url"
 	"os"
 	"time"
+	"github.com/jarmo/pocketize/template"
 
 	readability "github.com/go-shiori/go-readability"
 )
 
-func CreateArticle(url *url.URL) string {
+func Create(url *url.URL) string {
 	article, err := readability.FromURL(url.String(), 30*time.Second)
 	if err == nil {
 		return createReadableArticle(url, article)
@@ -38,7 +39,7 @@ func createReadableArticle(url *url.URL, article readability.Article) string {
 	articleFilePath := ReadableArticleFilePath(url, article)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
-	articleFile.WriteString(Render(ReadableArticleHTML(), CreateReadableArticleRenderArgs(url, article)))
+	articleFile.WriteString(template.Render(template.ReadableArticleHTML(), template.CreateReadableArticleRenderArgs(url, article)))
 	return articleFilePath
 }
 
@@ -46,6 +47,6 @@ func createNonReadableArticle(url *url.URL, err error) string {
 	articleFilePath := NonReadableArticleFilePath(url)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
-	articleFile.WriteString(Render(NonReadableArticleHTML(), CreateNonReadableArticleRenderArgs(url, err)))
+	articleFile.WriteString(template.Render(template.NonReadableArticleHTML(), template.CreateNonReadableArticleRenderArgs(url, err)))
 	return articleFilePath
 }

@@ -1,4 +1,4 @@
-package main
+package article
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-func ArticleURL(args []string) (*url.URL, error) {
+func URL(args []string) (*url.URL, error) {
 	if len(args) < 2 {
 		return nil, errors.New("Not enough arguments")
 	}
