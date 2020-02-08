@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bytes"
-	"encoding/base64"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -13,8 +10,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	"golang.org/x/net/html"
 
 	readability "github.com/go-shiori/go-readability"
 )
@@ -31,7 +26,7 @@ func main() {
 
 	os.MkdirAll(articlesRootDir, os.ModePerm)
 
-	article, err := readability.FromURL(url.String(), 30 * time.Second)
+	article, err := readability.FromURL(url.String(), 30*time.Second)
 	if err == nil {
 		fmt.Println(createArticle(url, article))
 	} else {
@@ -55,24 +50,11 @@ func main() {
 	}
 }
 
-type renderArgs struct {
-	Address     *url.URL
-	Title       string
-	Image       string
-	Excerpt     string
-	Byline      string
-	SiteName    string
-	ReadingTime int
-	Content     template.HTML
-	ArchivedAt  string
-	Error       error
-}
-
 func createArticle(url *url.URL, article readability.Article) string {
 	articleFilePath := createArticleFilePath(url, article)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
-	args := renderArgs{
+	args := RenderArgs{
 		Address:     url,
 		Title:       article.Title,
 		Image:       article.Image,
@@ -84,7 +66,7 @@ func createArticle(url *url.URL, article readability.Article) string {
 		ArchivedAt:  time.Now().Format("January 2, 2006"),
 	}
 
-	articleFile.WriteString(render(articleWithStyling(), args))
+	articleFile.WriteString(Render(articleWithStyling(), args))
 	return articleFilePath
 }
 
@@ -92,11 +74,11 @@ func createArticleWithFailedReadability(url *url.URL, err error) string {
 	articleFilePath := createArticleWithFailedReadabilityFilePath(url)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
-	args := renderArgs{
+	args := RenderArgs{
 		Address: url,
 		Error:   err,
 	}
-	articleFile.WriteString(render(articleWithFailedReadabilityWithStyling(), args))
+	articleFile.WriteString(Render(articleWithFailedReadabilityWithStyling(), args))
 	return articleFilePath
 }
 
@@ -116,21 +98,6 @@ func formattedTitle(title string) string {
 
 func formattedHost(address *url.URL) string {
 	return strings.ReplaceAll(address.Host, ".", "-")
-}
-
-func render(content string, args renderArgs) string {
-	tmpl, err := template.New("article").Parse(content)
-	if err != nil {
-		panic(err)
-	}
-
-	bufferString := bytes.NewBufferString("")
-	err = tmpl.Execute(bufferString, args)
-	if err != nil {
-		panic(err)
-	}
-
-	return contentWithBase64DataSourceImages(bufferString.String())
 }
 
 func articleWithStyling() string {
@@ -198,39 +165,4 @@ func siteName(address *url.URL, article readability.Article) string {
 func readingTime(article readability.Article) int {
 	wordsPerMinuteAverageReadingRate := 200
 	return len(strings.Split(article.TextContent, " ")) / wordsPerMinuteAverageReadingRate
-}
-
-func contentWithBase64DataSourceImages(doc string) string {
-	tokenizer := html.NewTokenizer(strings.NewReader(doc))
-	for {
-		if tokenizer.Next() == html.ErrorToken {
-			break
-		}
-
-		if tagName, _ := tokenizer.TagName(); string(tagName) == "img" {
-			for {
-				attrName, attrValue, hasMoreAttrs := tokenizer.TagAttr()
-				if string(attrName) == "src" {
-					if imageSource, err := url.Parse(string(attrValue)); err == nil {
-						if imageSource.Scheme == "https" || imageSource.Scheme == "http" {
-							resp, err := http.Get(imageSource.String())
-							defer resp.Body.Close()
-
-							if err == nil {
-								if imageBytes, err := ioutil.ReadAll(resp.Body); err == nil {
-									contentType := http.DetectContentType(imageBytes)
-									base64Image := base64.StdEncoding.EncodeToString(imageBytes)
-									doc = strings.ReplaceAll(doc, imageSource.String(), fmt.Sprintf("data:%s;base64,%s", contentType, base64Image))
-								}
-							}
-						}
-					}
-				}
-				if !hasMoreAttrs {
-					break
-				}
-			}
-		}
-	}
-	return doc
 }
