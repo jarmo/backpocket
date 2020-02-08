@@ -2,10 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/url"
-	"strings"
-
-	readability "github.com/go-shiori/go-readability"
 )
 
 func ReadableArticleHTML() string {
@@ -52,25 +48,4 @@ func NonReadableArticleHTML() string {
 	</body>
 </html>
 	`, Styles())
-}
-
-func byline(article readability.Article) string {
-	if len(article.Byline) > 0 {
-		return article.Byline
-	} else {
-		return "N/A"
-	}
-}
-
-func siteName(address *url.URL, article readability.Article) string {
-	if len(article.SiteName) > 0 {
-		return article.SiteName
-	} else {
-		return address.Host
-	}
-}
-
-func readingTime(article readability.Article) int {
-	wordsPerMinuteAverageReadingRate := 200
-	return len(strings.Split(article.TextContent, " ")) / wordsPerMinuteAverageReadingRate
 }
