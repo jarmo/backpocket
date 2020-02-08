@@ -1,19 +1,19 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"time"
-	"strings"
-	"path"
-	"regexp"
-	"errors"
 	"bytes"
-	"io/ioutil"
+	"encoding/base64"
+	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	"encoding/base64"
+	"os"
+	"path"
+	"regexp"
+	"strings"
+	"time"
+
 	"golang.org/x/net/html"
 
 	readability "github.com/go-shiori/go-readability"
@@ -22,7 +22,7 @@ import (
 const articlesRootDir = "articles"
 
 func main() {
-	uri, err := articleUri(os.Args)
+	url, err := ArticleURL(os.Args)
 	if err != nil {
 		//fmt.Println(err)
 		fmt.Println("\nUSAGE: pocketize ARTICLE_URL")
@@ -31,88 +31,70 @@ func main() {
 
 	os.MkdirAll(articlesRootDir, os.ModePerm)
 
-	article, err := readability.FromURL(uri.String(), 30 * time.Second)
+	article, err := readability.FromURL(url.String(), 30 * time.Second)
 	if err == nil {
-		fmt.Println(createArticle(uri, article))
+		fmt.Println(createArticle(url, article))
 	} else {
-		//fmt.Printf("failed to parse %s, %v\n", uri, err)
-		resp, err := http.Get(uri.String())
+		//fmt.Printf("failed to parse %s, %v\n", url, err)
+		resp, err := http.Get(url.String())
 
 		if err == nil && resp.StatusCode == http.StatusOK {
 			defer resp.Body.Close()
 
-			article, err := readability.FromReader(resp.Body, uri.String())
+			article, err := readability.FromReader(resp.Body, url.String())
 			if err == nil {
-				fmt.Println(createArticle(uri, article))
+				fmt.Println(createArticle(url, article))
 			} else {
-				//fmt.Printf("failed to parse %s: %v\n", uri, err)
-				fmt.Println(createArticleWithFailedReadability(uri, err))
+				//fmt.Printf("failed to parse %s: %v\n", url, err)
+				fmt.Println(createArticleWithFailedReadability(url, err))
 			}
 		} else {
-			//fmt.Printf("failed to download %s: %v\n", uri, err)
-			fmt.Println(createArticleWithFailedReadability(uri, err))
+			//fmt.Printf("failed to download %s: %v\n", url, err)
+			fmt.Println(createArticleWithFailedReadability(url, err))
 		}
 	}
 }
 
-func articleUri(args []string) (*url.URL, error) {
-	if len(args) < 2 {
-		return nil, errors.New("Not enough arguments")
-	}
-
-	rawUrl := args[1]
-	uri, err := url.Parse(rawUrl)
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Failed to parse URL %v", err))
-	}
-
-	if uri.Scheme == "" {
-		return nil, errors.New(fmt.Sprintf("URL in unsupported format %v", rawUrl))
-	}
-
-	return uri, nil
-}
-
 type renderArgs struct {
-	Address *url.URL
-	Title string
-	Image string
-	Excerpt string
-	Byline string
-	SiteName string
+	Address     *url.URL
+	Title       string
+	Image       string
+	Excerpt     string
+	Byline      string
+	SiteName    string
 	ReadingTime int
-	Content template.HTML
-	ArchivedAt string
-	Error error
+	Content     template.HTML
+	ArchivedAt  string
+	Error       error
 }
 
-func createArticle(uri *url.URL, article readability.Article) string {
-	articleFilePath := createArticleFilePath(uri, article)
+func createArticle(url *url.URL, article readability.Article) string {
+	articleFilePath := createArticleFilePath(url, article)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
 	args := renderArgs{
-		Address: uri,
-		Title: article.Title,
-		Image: article.Image,
-		Excerpt: article.Excerpt,
-		Byline: byline(article),
-		SiteName: siteName(uri, article),
+		Address:     url,
+		Title:       article.Title,
+		Image:       article.Image,
+		Excerpt:     article.Excerpt,
+		Byline:      byline(article),
+		SiteName:    siteName(url, article),
 		ReadingTime: readingTime(article),
-		Content: template.HTML(article.Content),
-		ArchivedAt: time.Now().Format("January 2, 2006"),
+		Content:     template.HTML(article.Content),
+		ArchivedAt:  time.Now().Format("January 2, 2006"),
 	}
-	
+
 	articleFile.WriteString(render(articleWithStyling(), args))
 	return articleFilePath
 }
 
-func createArticleWithFailedReadability(uri *url.URL, err error) string {
-	articleFilePath := createArticleWithFailedReadabilityFilePath(uri)
+func createArticleWithFailedReadability(url *url.URL, err error) string {
+	articleFilePath := createArticleWithFailedReadabilityFilePath(url)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
 	args := renderArgs{
-		Address: uri,
-		Error: err,
+		Address: url,
+		Error:   err,
 	}
 	articleFile.WriteString(render(articleWithFailedReadabilityWithStyling(), args))
 	return articleFilePath
@@ -252,4 +234,3 @@ func contentWithBase64DataSourceImages(doc string) string {
 	}
 	return doc
 }
-
