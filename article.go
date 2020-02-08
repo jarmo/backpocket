@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"net/url"
 	"os"
@@ -41,19 +40,7 @@ func createReadableArticle(url *url.URL, article readability.Article) string {
 	articleFilePath := ReadableArticleFilePath(url, article)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
-	args := RenderArgs{
-		Address:     url,
-		Title:       article.Title,
-		Image:       article.Image,
-		Excerpt:     article.Excerpt,
-		Byline:      byline(article),
-		SiteName:    siteName(url, article),
-		ReadingTime: readingTime(article),
-		Content:     template.HTML(article.Content),
-		ArchivedAt:  time.Now().Format("January 2, 2006"),
-	}
-
-	articleFile.WriteString(Render(readableArticleHTML(), args))
+	articleFile.WriteString(Render(readableArticleHTML(), CreateReadableArticleRenderArgs(url, article)))
 	return articleFilePath
 }
 
@@ -61,11 +48,7 @@ func createNonReadableArticle(url *url.URL, err error) string {
 	articleFilePath := NonReadableArticleFilePath(url)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
-	args := RenderArgs{
-		Address: url,
-		Error:   err,
-	}
-	articleFile.WriteString(Render(nonReadableArticleHTML(), args))
+	articleFile.WriteString(Render(nonReadableArticleHTML(), CreateNonReadableArticleRenderArgs(url, err)))
 	return articleFilePath
 }
 
