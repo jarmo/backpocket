@@ -14,7 +14,7 @@ import (
 )
 
 func Render(content string, args RenderArgs) string {
-	tmpl, err := template.New("article").Parse(content)
+	tmpl, err := template.New("html").Parse(content)
 	if err != nil {
 		panic(err)
 	}
