@@ -16,6 +16,5 @@ func main() {
 	}
 
 	os.MkdirAll(article.RootDir, os.ModePerm)
-
 	fmt.Println(article.Create(url))
 }
