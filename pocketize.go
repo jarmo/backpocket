@@ -8,7 +8,9 @@ import (
 	"path"
 	"regexp"
 	"errors"
+	"bytes"
 	"io/ioutil"
+	"html/template"
 	"net/http"
 	"net/url"
 	"encoding/base64"
@@ -22,7 +24,7 @@ const articlesRootDir = "articles"
 func main() {
 	uri, err := articleUri(os.Args)
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
 		fmt.Println("\nUSAGE: pocketize ARTICLE_URL")
 		os.Exit(1)
 	}
@@ -36,7 +38,7 @@ func main() {
 		//fmt.Printf("failed to parse %s, %v\n", uri, err)
 		resp, err := http.Get(uri.String())
 
-		if err == nil {
+		if err == nil && resp.StatusCode == http.StatusOK {
 			defer resp.Body.Close()
 
 			article, err := readability.FromReader(resp.Body, uri.String())
@@ -71,11 +73,36 @@ func articleUri(args []string) (*url.URL, error) {
 	return uri, nil
 }
 
+type renderArgs struct {
+	Address *url.URL
+	Title string
+	Image string
+	Excerpt string
+	Byline string
+	SiteName string
+	ReadingTime int
+	Content template.HTML
+	ArchivedAt string
+	Error error
+}
+
 func createArticle(uri *url.URL, article readability.Article) string {
 	articleFilePath := createArticleFilePath(uri, article)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
-	articleFile.WriteString(articleWithStyling(uri, article))
+	args := renderArgs{
+		Address: uri,
+		Title: article.Title,
+		Image: article.Image,
+		Excerpt: article.Excerpt,
+		Byline: byline(article),
+		SiteName: siteName(uri, article),
+		ReadingTime: readingTime(article),
+		Content: template.HTML(article.Content),
+		ArchivedAt: time.Now().Format("January 2, 2006"),
+	}
+	
+	articleFile.WriteString(render(articleWithStyling(), args))
 	return articleFilePath
 }
 
@@ -83,7 +110,11 @@ func createArticleWithFailedReadability(uri *url.URL, err error) string {
 	articleFilePath := createArticleWithFailedReadabilityFilePath(uri)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
-	articleFile.WriteString(articleWithFailedReadabilityWithStyling(uri, err))
+	args := renderArgs{
+		Address: uri,
+		Error: err,
+	}
+	articleFile.WriteString(render(articleWithFailedReadabilityWithStyling(), args))
 	return articleFilePath
 }
 
@@ -105,60 +136,65 @@ func formattedHost(address *url.URL) string {
 	return strings.ReplaceAll(address.Host, ".", "-")
 }
 
-func articleWithStyling(uri *url.URL, article readability.Article) string {
-	archivedAt := time.Now().UTC()
+func render(content string, args renderArgs) string {
+	tmpl, err := template.New("article").Parse(content)
+	if err != nil {
+		panic(err)
+	}
 
-	return contentWithBase64Images(fmt.Sprintf(`
+	bufferString := bytes.NewBufferString("")
+	err = tmpl.Execute(bufferString, args)
+	if err != nil {
+		panic(err)
+	}
+
+	return contentWithBase64DataSourceImages(bufferString.String())
+}
+
+func articleWithStyling() string {
+	return fmt.Sprintf(`
 		<!DOCTYPE html>
 		<html>
 			<head>
 				<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 				<meta content="utf-8" http-equiv="encoding">
-				<title>%s</title>
+				<title>{{.Title}}</title>
 				<style>%s</style>
 			</head>
 			<body>
 				<header>
 					<h1>
-						<a href="%s">%s</a>
-						<div class="archived-at">%s</div>
+						<a href="{{.Address}}">{{.Title}}</a>
+						<div class="archived-at">Archived at {{.ArchivedAt}}</div>
 					</h1>
-					<img src="%s">
-					<figcaption>%s</figcaption>
-					<small>%s • %s • %d minutes</small>
+					<img src="{{.Image}}">
+					<figcaption>{{.Excerpt}}</figcaption>
+					<small>{{.Byline}} • {{.SiteName}} • {{.ReadingTime}} minutes</small>
 				</header>
-				<article data-archived-at="%s">%s</article>
+				<article>{{.Content}}</article>
 			</body>
 		</html>
-		`,
-		article.Title,
-		Styles(),
-		uri.String(), article.Title,
-		archivedAt.Format("January 2, 2006"),
-		article.Image,
-		article.Excerpt,
-		byline(article), siteName(uri, article), readingTime(article),
-		archivedAt.Format(time.RFC3339), article.Content))
-	}
+		`, Styles())
+}
 
-func articleWithFailedReadabilityWithStyling(address *url.URL, err error) string {
+func articleWithFailedReadabilityWithStyling() string {
 	return fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 		<meta content="utf-8" http-equiv="encoding">
-		<title>%s</title>
+		<title>{{.Address}}</title>
 		<style>%s</style>
 	</head>
 	<body>
 	  <header>
-			<h1><a href="%s">%s</a></h1>
-			<figcaption>%v</figcaption>
+			<h1><a href="{{.Address}}">{{.Address}}</a></h1>
+			<figcaption>{{.Error}}</figcaption>
 	  </header>
 	</body>
 </html>
-	`, address.String(), Styles(), address.String(), address.String(), err)
+	`, Styles())
 }
 
 func byline(article readability.Article) string {
@@ -182,7 +218,7 @@ func readingTime(article readability.Article) int {
 	return len(strings.Split(article.TextContent, " ")) / wordsPerMinuteAverageReadingRate
 }
 
-func contentWithBase64Images(doc string) string {
+func contentWithBase64DataSourceImages(doc string) string {
 	tokenizer := html.NewTokenizer(strings.NewReader(doc))
 	for {
 		if tokenizer.Next() == html.ErrorToken {
