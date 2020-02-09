@@ -11,7 +11,7 @@ import (
 	readability "github.com/go-shiori/go-readability"
 )
 
-const RootDir = "articles"
+const RootDir = "backpocket-contents"
 
 func ReadableArticleFilePath(address *url.URL, article readability.Article) string {
 	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.html", time.Now().Format("2006-01-02"), formattedTitle(article.Title), formattedHost(address)))
