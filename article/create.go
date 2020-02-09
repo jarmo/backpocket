@@ -1,37 +1,44 @@
 package article
 
 import (
+	"bytes"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-	"time"
+	"strings"
+
 	"github.com/jarmo/pocketize/template"
 
 	readability "github.com/go-shiori/go-readability"
 )
 
 func Create(url *url.URL) string {
-	article, err := readability.FromURL(url.String(), 30*time.Second)
+	resp, err := http.Get(url.String())
 	if err == nil {
-		return createReadableArticle(url, article)
-	} else {
-		//fmt.Printf("failed to parse %s, %v\n", url, err)
-		resp, err := http.Get(url.String())
+		defer resp.Body.Close()
 
-		if err == nil && resp.StatusCode == http.StatusOK {
-			defer resp.Body.Close()
-
-			article, err := readability.FromReader(resp.Body, url.String())
-			if err == nil {
-				return createReadableArticle(url, article)
+		if resp.StatusCode == http.StatusOK {
+			if content, err := ioutil.ReadAll(resp.Body); err == nil {
+				contentType := http.DetectContentType(content)
+				if strings.Contains(contentType, "text/html") {
+					article, err := readability.FromReader(bytes.NewReader(content), url.String())
+					if err == nil {
+						return createReadableArticle(url, article)
+					} else {
+						return createNonReadableArticle(url, err)
+					}
+				} else {
+					return createNonHTMLContent(url, contentType, content)
+				}
 			} else {
-				//fmt.Printf("failed to parse %s: %v\n", url, err)
-				return createNonReadableArticle(url, err)
+				panic(err)
 			}
 		} else {
-			//fmt.Printf("failed to download %s: %v\n", url, err)
 			return createNonReadableArticle(url, err)
 		}
+	} else {
+		return createNonReadableArticle(url, err)
 	}
 }
 
@@ -49,4 +56,12 @@ func createNonReadableArticle(url *url.URL, err error) string {
 	defer articleFile.Close()
 	articleFile.WriteString(template.Render(template.NonReadableArticleHTML(), template.CreateNonReadableArticleRenderArgs(url, err)))
 	return articleFilePath
+}
+
+func createNonHTMLContent(url *url.URL, contentType string, content []byte) string {
+	contentFilePath := NonHTMLContentFilePath(url, contentType)
+	contentFile, _ := os.Create(contentFilePath)
+	defer contentFile.Close()
+	contentFile.Write(content)
+	return contentFilePath
 }
