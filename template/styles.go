@@ -15,6 +15,19 @@ func Styles() string {
 			max-width: 100%;
 		}
 
+		pre, code {
+			background-color: rgba(226, 226, 226, .4);
+		}
+
+		pre > code {
+		  background-color: initial;
+		}
+
+		pre, code {
+			white-space: break-spaces;
+			word-wrap: anywhere;
+		}
+
 		body > header {
 			width: 80%;
 			margin: 0 auto;
