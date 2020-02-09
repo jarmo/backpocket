@@ -18,9 +18,7 @@ func ReadableArticleHTML() string {
 			</head>
 			<body>
 				<header>
-					<h1>
-						{{.Title}}
-					</h1>
+					<h1>{{.Title}}</h1>
 					<div class="source-info">
 						<div>Archived at {{.ArchivedAt}}</div>
 						<div><a href="{{.Address}}">View Original</a></div>
@@ -51,9 +49,15 @@ func NonReadableArticleHTML() string {
 	</head>
 	<body>
 	  <header>
-			<h1><a href="{{.Address}}">{{.Address}}</a></h1>
-			<figcaption>{{.Error}}</figcaption>
+			<h1>Failed to archive</h1>
+			<div class="source-info">
+				<div>Tried at {{.ArchivedAt}}</div>
+				<div><a href="{{.Address}}">View Original</a></div>
+			</div>
 	  </header>
+	  <article>
+			<small>{{.Error}}</small>
+	  </article>
 	</body>
 </html>
 	`, ModernNormalizeStyles(), Styles())

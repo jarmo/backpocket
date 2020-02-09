@@ -38,8 +38,9 @@ func CreateReadableArticleRenderArgs(url *url.URL, article readability.Article) 
 
 func CreateNonReadableArticleRenderArgs(url *url.URL, err error) RenderArgs {
 	return RenderArgs{
-		Address: url,
-		Error:   err,
+		Address:    url,
+		ArchivedAt: time.Now().Format("January 2, 2006"),
+		Error:      err,
 	}
 }
 
