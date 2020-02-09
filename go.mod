@@ -1,4 +1,4 @@
-module github.com/jarmo/pocketize
+module github.com/jarmo/backpocket
 
 go 1.12
 

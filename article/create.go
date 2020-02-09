@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jarmo/pocketize/template"
+	"github.com/jarmo/backpocket/template"
 
 	readability "github.com/go-shiori/go-readability"
 )
