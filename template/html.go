@@ -11,6 +11,7 @@ func ReadableArticleHTML() string {
 			<head>
 				<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 				<meta content="utf-8" http-equiv="encoding">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
 				<title>{{.Title}}</title>
 				<style>%s</style>
 				<style>%s</style>
@@ -18,11 +19,16 @@ func ReadableArticleHTML() string {
 			<body>
 				<header>
 					<h1>
-						<a href="{{.Address}}">{{.Title}}</a>
-						<div class="archived-at">Archived at {{.ArchivedAt}}</div>
+						{{.Title}}
 					</h1>
-					<img src="{{.Image}}">
-					<figcaption>{{.Excerpt}}</figcaption>
+					<div class="source-info">
+						<div>Archived at {{.ArchivedAt}}</div>
+						<div><a href="{{.Address}}">View Original</a></div>
+					</div>
+					<figure>
+						<img src="{{.Image}}">
+						<figcaption>{{.Excerpt}}</figcaption>
+					</figure>
 					<small>{{.Byline}} • {{.SiteName}} • {{.ReadingTime}} minutes</small>
 				</header>
 				<article>{{.Content}}</article>
@@ -38,6 +44,7 @@ func NonReadableArticleHTML() string {
 	<head>
 		<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 		<meta content="utf-8" http-equiv="encoding">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>{{.Address}}</title>
 		<style>%s</style>
 		<style>%s</style>

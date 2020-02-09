@@ -5,6 +5,11 @@ func Styles() string {
 		body {
 			font-size: 1.3em;
 		}
+
+		blockquote,
+		figure {
+			margin: 0;
+		}
 		
 		img {
 			max-width: 100%;
@@ -17,20 +22,22 @@ func Styles() string {
 			text-align: center;
 		}
 
-		body > header small, body > header .archived-at {
+		body > header small,
+		body > header .source-info {
 			color: gray;
+			margin-bottom: 1.5em;
 		}
 
-		body > header .archived-at {
-			font-size: 50%;
+		body > header .source-info {
+			font-size: 90%;
 		}
 
 		body > header img {
 			margin-bottom: 1em;
 		}
 
-		body > header figcaption {
-			font-size: 80%;
+		body > article figure {
+			text-align: center;
 		}
 
 		body > article {
@@ -38,12 +45,36 @@ func Styles() string {
 			margin: 0 auto;
 		}
 
+		figure figcaption {
+			font-size: .8em;
+		}
+
 		a {
 			text-decoration: none;
+			color: #0277bd;
 		}
 
 		a:hover {
 			text-decoration: underline;
+		}
+
+		@media (max-width: 1279px) {
+			body {
+				font-size: 1.2em;
+			}
+
+			body > article {
+				width: 85%;
+			}
+
+			body > header {
+				margin-top: 2em;
+				margin-bottom: 5em;
+			}
+
+			body > header h1 {
+				font-size: 1.3em;
+			}
 		}
 `
 }
