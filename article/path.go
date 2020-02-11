@@ -13,7 +13,7 @@ import (
 const RootDir = "backpocket-contents"
 
 func ReadableArticleFilePath(params ArticleParams, article readability.Article) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", params.ArchivedAt.Format("2006-01-02"), formattedTitle(article.Title)))
+	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromArticleOrPath(article, params.Url)))
 }
 
 func NonReadableArticleFilePath(params ArticleParams) string {
@@ -29,6 +29,14 @@ func extension(contentType string) string {
 		return "txt"
 	} else {
 		return strings.Split(strings.Split(contentType, ";")[0], "/")[1]
+	}
+}
+
+func titleFromArticleOrPath(article readability.Article, url *url.URL) string {
+	if len(article.Title) > 0 {
+		return formattedTitle(article.Title)
+	} else {
+		return titleFromPath(url)
 	}
 }
 
