@@ -42,9 +42,9 @@ func contentWithBase64DataSourceImages(doc string) string {
 					if imageSource, err := url.Parse(string(attrValue)); err == nil {
 						if imageSource.Scheme == "https" || imageSource.Scheme == "http" {
 							resp, err := http.Get(imageSource.String())
-							defer resp.Body.Close()
 
 							if err == nil {
+								defer resp.Body.Close()
 								if imageBytes, err := ioutil.ReadAll(resp.Body); err == nil {
 									contentType := http.DetectContentType(imageBytes)
 									base64Image := base64.StdEncoding.EncodeToString(imageBytes)

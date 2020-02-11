@@ -22,7 +22,7 @@ type RenderArgs struct {
 	Error       error
 }
 
-func CreateReadableArticleRenderArgs(url *url.URL, article readability.Article) RenderArgs {
+func CreateReadableArticleRenderArgs(url *url.URL, archivedAt time.Time, article readability.Article) RenderArgs {
 	return RenderArgs{
 		Address:     url,
 		Title:       article.Title,
@@ -32,14 +32,14 @@ func CreateReadableArticleRenderArgs(url *url.URL, article readability.Article) 
 		SiteName:    siteName(url, article),
 		ReadingTime: readingTime(article),
 		Content:     template.HTML(article.Content),
-		ArchivedAt:  time.Now().Format("January 2, 2006"),
+		ArchivedAt:  archivedAt.Format("January 2, 2006"),
 	}
 }
 
-func CreateNonReadableArticleRenderArgs(url *url.URL, err error) RenderArgs {
+func CreateNonReadableArticleRenderArgs(url *url.URL, archivedAt time.Time, err error) RenderArgs {
 	return RenderArgs{
 		Address:    url,
-		ArchivedAt: time.Now().Format("January 2, 2006"),
+		ArchivedAt: archivedAt.Format("January 2, 2006"),
 		Error:      err,
 	}
 }

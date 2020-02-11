@@ -6,23 +6,22 @@ import (
 	"path"
 	"regexp"
 	"strings"
-	"time"
 
 	readability "github.com/go-shiori/go-readability"
 )
 
 const RootDir = "backpocket-contents"
 
-func ReadableArticleFilePath(address *url.URL, article readability.Article) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", time.Now().Format("2006-01-02"), formattedTitle(article.Title)))
+func ReadableArticleFilePath(params ArticleParams, article readability.Article) string {
+	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", params.ArchivedAt.Format("2006-01-02"), formattedTitle(article.Title)))
 }
 
-func NonReadableArticleFilePath(address *url.URL) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", time.Now().Format("2006-01-02"), formattedHost(address)))
+func NonReadableArticleFilePath(params ArticleParams) string {
+	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromPath(params.Url)))
 }
 
-func NonHTMLContentFilePath(address *url.URL, contentType string) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s.%s", time.Now().Format("2006-01-02"), formattedTitle(titleFromPath(address)), extension(contentType)))
+func NonHTMLContentFilePath(params ArticleParams, contentType string) string {
+	return path.Join(RootDir, fmt.Sprintf("%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromPath(params.Url), extension(contentType)))
 }
 
 func extension(contentType string) string {
@@ -34,7 +33,7 @@ func extension(contentType string) string {
 }
 
 func titleFromPath(url *url.URL) string {
-	return strings.ReplaceAll(path.Base(url.Path), path.Ext(url.Path), "")
+	return formattedTitle(strings.ReplaceAll(path.Base(url.Path), path.Ext(url.Path), ""))
 }
 
 func formattedTitle(title string) string {
