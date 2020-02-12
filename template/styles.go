@@ -49,11 +49,11 @@ func Styles() string {
 			margin-bottom: 1em;
 		}
 
-		body > article figure {
+		body > main figure {
 			text-align: center;
 		}
 
-		body > article {
+		body > main {
 			width: 45%;
 			margin: 0 auto;
 		}
@@ -76,7 +76,7 @@ func Styles() string {
 				font-size: 1.2em;
 			}
 
-			body > article {
+			body > main {
 				width: 85%;
 			}
 

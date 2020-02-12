@@ -29,7 +29,7 @@ func ReadableArticleHTML() string {
 					</figure>
 					<small>{{.Byline}} • {{.SiteName}} • {{.ReadingTime}} minutes</small>
 				</header>
-				<article>{{.Content}}</article>
+				<main>{{.Content}}</main>
 			</body>
 		</html>
 		`, ModernNormalizeStyles(), Styles())
@@ -55,9 +55,9 @@ func NonReadableArticleHTML() string {
 				<div><a href="{{.Address}}">View Original</a></div>
 			</div>
 	  </header>
-	  <article>
+	  <main>
 			<small>{{.Error}}</small>
-	  </article>
+	  </main>
 	</body>
 </html>
 	`, ModernNormalizeStyles(), Styles())
