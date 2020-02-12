@@ -11,7 +11,7 @@ func Styles() string {
 			margin: 0;
 		}
 		
-		img {
+		img, iframe {
 			max-width: 100%;
 		}
 
