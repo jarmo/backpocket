@@ -33,7 +33,7 @@ func extension(contentType string) string {
 }
 
 func titleFromArticleOrPath(article readability.Article, url *url.URL) string {
-	if len(article.Title) > 0 {
+	if len(strings.TrimSpace(article.Title)) > 0 {
 		return formattedTitle(article.Title)
 	} else {
 		return titleFromPath(url)
@@ -45,9 +45,22 @@ func titleFromPath(url *url.URL) string {
 }
 
 func formattedTitle(title string) string {
-	replaceInvalidCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%,^]")
+	replaceInvalidCharactersRegexp := regexp.MustCompile("[^\x00-\x7F]")
+	replaceUnsupportedCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%,^]")
 	replaceDuplicateAdjacentDashesRegexp := regexp.MustCompile("-{2,}")
-	return replaceDuplicateAdjacentDashesRegexp.ReplaceAllString(replaceInvalidCharactersRegexp.ReplaceAllString(strings.ReplaceAll(strings.ReplaceAll(title, " ", "-"), "&", "and"), ""), "-")
+	return strings.TrimSpace(strings.Trim(strings.Trim(
+		replaceDuplicateAdjacentDashesRegexp.ReplaceAllString(
+			replaceUnsupportedCharactersRegexp.ReplaceAllString(
+				replaceInvalidCharactersRegexp.ReplaceAllString(
+					strings.ReplaceAll(
+						strings.ReplaceAll(title,
+						" ", "-"),
+					"&", "and"),
+				""),
+			""),
+		"-"),
+	"-"),
+	"."))
 }
 
 func formattedHost(address *url.URL) string {
