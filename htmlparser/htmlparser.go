@@ -13,9 +13,9 @@ func Render(node *html.Node) string {
 	return buf.String()
 }
 
-type nodeFn func(*html.Node)
+type nodeWalkFn func(*html.Node)
 
-func ForEachNode(rootNode *html.Node, fn nodeFn) {
+func ForEachNode(rootNode *html.Node, fn nodeWalkFn) {
 	var walker func(*html.Node)
 	walker = func(node *html.Node) {
 		fn(node)
@@ -24,6 +24,26 @@ func ForEachNode(rootNode *html.Node, fn nodeFn) {
 		}
 	}
 	walker(rootNode)
+}
+
+type nodeFindFn func(*html.Node) bool
+
+func FindNode(rootNode *html.Node, fn nodeFindFn) *html.Node {
+	var foundNode *html.Node
+
+	var walker func(*html.Node)
+	walker = func(node *html.Node) {
+		if fn(node) {
+			foundNode = node
+			return
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			walker(child)
+		}
+	}
+	walker(rootNode)
+
+	return foundNode
 }
 
 func AttrByName(node *html.Node, name string) string {

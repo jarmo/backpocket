@@ -4,54 +4,31 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/jarmo/backpocket/htmlparser"
+
 	"golang.org/x/net/html"
 )
 
-func HttpEquivRefreshUrl(articleUrl *url.URL, doc string) *url.URL {
-	isMetaRefreshTag := false
-	var metaRefreshUrl *url.URL
+func HttpEquivRefreshUrl(articleUrl *url.URL, content string) *url.URL {
+	doc, _ := html.Parse(strings.NewReader(content))
 
-	tokenizer := html.NewTokenizer(strings.NewReader(doc))
-	for {
-		if tokenizer.Next() == html.ErrorToken {
-			break
-		}
+	metaRefreshNode := htmlparser.FindNode(doc, func(node *html.Node) bool {
+		return node.Type == html.ElementNode && node.Data == "meta" && htmlparser.AttrByName(node, "http-equiv") != "" && htmlparser.AttrByName(node, "content") != ""
+	})
 
-		if tagName, _ := tokenizer.TagName(); string(tagName) == "meta" {
-			for {
-				attrName, attrValue, hasMoreAttrs := tokenizer.TagAttr()
-				if strings.ToLower(string(attrName)) == "http-equiv" && strings.ToLower(string(attrValue)) == "refresh" {
-					isMetaRefreshTag = true
-				} else if strings.ToLower(string(attrName)) == "content" {
-					contentAttrValues := strings.Split(string(attrValue), ";")
-					for _, value := range contentAttrValues {
-						if strings.Contains(strings.ToLower(value), "url=") {
-							possibleUrl := strings.ReplaceAll(strings.ReplaceAll(value, "url=", ""), "URL=", "")
-							if refreshUrl, err := url.Parse(strings.TrimSpace(possibleUrl)); err == nil {
-								metaRefreshUrl = refreshUrl
-							}
-						}
-					}
-				}
-
-				if !hasMoreAttrs {
-					break
+	if metaRefreshNode != nil {
+		contentAttrValue := htmlparser.AttrByName(metaRefreshNode, "content")
+		contentAttrValueParts := strings.Split(contentAttrValue, ";")
+		for _, value := range contentAttrValueParts {
+			if strings.Contains(strings.ToLower(value), "url=") {
+				possibleUrl := strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(value, "url=", ""), "URL=", ""))
+				if refreshUrl, err := url.Parse(possibleUrl); err == nil {
+					return refreshUrl
 				}
 			}
 		}
-
-		if isMetaRefreshTag && metaRefreshUrl != nil {
-			break
-		}
 	}
 
-	if metaRefreshUrl != nil {
-		if !metaRefreshUrl.IsAbs() {
-			return articleUrl.ResolveReference(metaRefreshUrl)
-		} else {
-			return metaRefreshUrl
-		}
-	} else {
-		return nil
-	}
+	return nil
 }
+
