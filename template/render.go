@@ -53,6 +53,8 @@ func contentWithBase64DataSourceImages(doc string) string {
 							}
 						}
 					}
+				} else if string(attrName) == "srcset" {
+					doc = strings.ReplaceAll(doc, string(attrValue), "")
 				}
 				if !hasMoreAttrs {
 					break
