@@ -6,6 +6,8 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
+	"math/rand"
 
 	readability "github.com/go-shiori/go-readability"
 )
@@ -13,15 +15,15 @@ import (
 const RootDir = "backpocket-contents"
 
 func ReadableArticleFilePath(params ArticleParams, article readability.Article) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromArticleOrPath(article, params.Url)))
+	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromArticleOrPath(article, params.Url), randomSuffix()))
 }
 
 func NonReadableArticleFilePath(params ArticleParams) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromPath(params.Url)))
+	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromPath(params.Url), randomSuffix()))
 }
 
 func NonHTMLContentFilePath(params ArticleParams, contentType string) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromPath(params.Url), extension(contentType)))
+	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromPath(params.Url), randomSuffix(), extension(contentType)))
 }
 
 func extension(contentType string) string {
@@ -65,4 +67,14 @@ func formattedTitle(title string) string {
 
 func formattedHost(address *url.URL) string {
 	return strings.ReplaceAll(address.Host, ".", "-")
+}
+
+func randomSuffix() string {
+	rand.Seed(time.Now().UnixNano())
+	const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, 8)
+	for i := range b {
+			b[i] = characters[rand.Intn(len(characters))]
+	}
+	return string(b)
 }
