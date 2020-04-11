@@ -41,16 +41,7 @@ func contentWithBase64DataSourceImages(doc string) string {
 				if string(attrName) == "src" {
 					if imageSource, err := url.Parse(string(attrValue)); err == nil {
 						if imageSource.Scheme == "https" || imageSource.Scheme == "http" {
-							resp, err := http.Get(imageSource.String())
-
-							if err == nil {
-								defer resp.Body.Close()
-								if imageBytes, err := ioutil.ReadAll(resp.Body); err == nil {
-									contentType := http.DetectContentType(imageBytes)
-									base64Image := base64.StdEncoding.EncodeToString(imageBytes)
-									doc = strings.ReplaceAll(doc, imageSource.String(), fmt.Sprintf("data:%s;base64,%s", contentType, base64Image))
-								}
-							}
+							doc = replaceImageWithBase64DataSource(doc, imageSource)
 						}
 					}
 				} else if string(attrName) == "srcset" {
@@ -63,4 +54,27 @@ func contentWithBase64DataSourceImages(doc string) string {
 		}
 	}
 	return doc
+}
+
+func replaceImageWithBase64DataSource(doc string, imageSource *url.URL) string {
+	resp, err := http.Get(imageSource.String())
+
+	if err == nil {
+		defer resp.Body.Close()
+		if imageBytes, err := ioutil.ReadAll(resp.Body); err == nil {
+			base64Image := base64.StdEncoding.EncodeToString(imageBytes)
+			return strings.ReplaceAll(doc, imageSource.String(), fmt.Sprintf("data:%s;base64,%s", imageContentType(imageBytes), base64Image))
+		}
+	}
+
+	return doc
+}
+
+func imageContentType(imageBytes []byte) string {
+	contentType := http.DetectContentType(imageBytes)
+	if strings.Contains(contentType, "text/xml") {
+		return "image/svg+xml"
+	} else {
+		return contentType
+	}
 }
