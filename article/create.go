@@ -19,7 +19,7 @@ func Create(params ArticleParams) string {
 
 		if resp.StatusCode == http.StatusOK {
 			if content, err := ioutil.ReadAll(resp.Body); err == nil {
-				contentType := http.DetectContentType(content)
+				contentType := resp.Header.Get("Content-Type")
 				if strings.Contains(contentType, "text/html") {
 					article, err := readability.FromReader(bytes.NewReader(content), params.Url.String())
 					if err == nil {
