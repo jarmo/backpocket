@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 	"math/rand"
+	"math"
 
 	readability "github.com/go-shiori/go-readability"
 )
@@ -56,7 +57,7 @@ func formattedTitle(title string) string {
 	replaceInvalidCharactersRegexp := regexp.MustCompile("[^\x00-\x7F]")
 	replaceUnsupportedCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%,^{}]")
 	replaceDuplicateAdjacentDashesRegexp := regexp.MustCompile("-{2,}")
-	return strings.TrimSpace(strings.Trim(strings.Trim(
+	formattedTitle := strings.TrimSpace(strings.Trim(strings.Trim(
 		replaceDuplicateAdjacentDashesRegexp.ReplaceAllString(
 			replaceUnsupportedCharactersRegexp.ReplaceAllString(
 				replaceInvalidCharactersRegexp.ReplaceAllString(
@@ -69,6 +70,9 @@ func formattedTitle(title string) string {
 		"-"),
 	"-"),
 	"."))
+	
+	maxTitleLength := int(math.Min(64, float64(len(formattedTitle))))
+	return formattedTitle[:maxTitleLength]
 }
 
 func formattedHost(address *url.URL) string {
