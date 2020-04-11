@@ -21,11 +21,16 @@ func Create(params ArticleParams) string {
 			if content, err := ioutil.ReadAll(resp.Body); err == nil {
 				contentType := resp.Header.Get("Content-Type")
 				if strings.Contains(contentType, "text/html") {
-					article, err := readability.FromReader(bytes.NewReader(content), params.Url.String())
-					if err == nil {
-						return createReadableArticle(params, article)
+					metaRefreshUrl := HttpEquivRefreshUrl(params.Url, string(content[:]))
+					if metaRefreshUrl != nil {
+						return Create(ArticleParams{Url: metaRefreshUrl, ArchivedAt: params.ArchivedAt})
 					} else {
-						return createNonReadableArticle(params, err)
+						article, err := readability.FromReader(bytes.NewReader(content), params.Url.String())
+						if err == nil {
+							return createReadableArticle(params, article)
+						} else {
+							return createNonReadableArticle(params, err)
+						}
 					}
 				} else {
 					return createNonHTMLContent(params, contentType, content)
