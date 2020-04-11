@@ -48,7 +48,7 @@ func titleFromPath(url *url.URL) string {
 
 func formattedTitle(title string) string {
 	replaceInvalidCharactersRegexp := regexp.MustCompile("[^\x00-\x7F]")
-	replaceUnsupportedCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%,^]")
+	replaceUnsupportedCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%,^{}]")
 	replaceDuplicateAdjacentDashesRegexp := regexp.MustCompile("-{2,}")
 	return strings.TrimSpace(strings.Trim(strings.Trim(
 		replaceDuplicateAdjacentDashesRegexp.ReplaceAllString(
