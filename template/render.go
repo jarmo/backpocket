@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
-	"net/http"
+	goHttp "net/http"
 	"net/url"
 	"strings"
+
+	"github.com/jarmo/backpocket/http"
 
 	"golang.org/x/net/html"
 )
@@ -55,7 +57,7 @@ func contentWithBase64DataSourceImages(doc string) string {
 }
 
 func replaceImageWithBase64DataSource(doc string, imageSource *url.URL) string {
-	resp, err := http.Get(imageSource.String())
+	resp, err := http.Get(imageSource)
 
 	if err == nil {
 		defer resp.Body.Close()
@@ -69,7 +71,7 @@ func replaceImageWithBase64DataSource(doc string, imageSource *url.URL) string {
 }
 
 func imageContentType(imageBytes []byte) string {
-	contentType := http.DetectContentType(imageBytes)
+	contentType := goHttp.DetectContentType(imageBytes)
 	if strings.Contains(contentType, "text/xml") {
 		return "image/svg+xml"
 	} else {

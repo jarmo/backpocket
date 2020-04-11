@@ -3,21 +3,21 @@ package article
 import (
 	"bytes"
 	"io/ioutil"
-	"net/http"
+	goHttp "net/http"
 	"os"
 	"strings"
 
 	"github.com/jarmo/backpocket/template"
+	"github.com/jarmo/backpocket/http"
 
 	readability "github.com/go-shiori/go-readability"
 )
 
 func Create(params ArticleParams) string {
-	resp, err := http.Get(params.Url.String())
+	resp, err := http.Get(params.Url)
 	if err == nil {
 		defer resp.Body.Close()
-
-		if resp.StatusCode == http.StatusOK {
+		if resp.StatusCode == goHttp.StatusOK {
 			if content, err := ioutil.ReadAll(resp.Body); err == nil {
 				contentType := resp.Header.Get("Content-Type")
 				if strings.Contains(contentType, "text/html") {
