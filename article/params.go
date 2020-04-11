@@ -24,7 +24,7 @@ func Params(args []string) (ArticleParams, error) {
 		return ArticleParams{}, errors.New(fmt.Sprintf("Failed to parse URL %v", err))
 	}
 
-	if uri.Scheme == "" {
+	if uri.Scheme != "http" && uri.Scheme != "https" {
 		return ArticleParams{}, errors.New(fmt.Sprintf("URL in unsupported format %v", rawUrl))
 	}
 
