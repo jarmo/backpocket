@@ -13,18 +13,16 @@ import (
 	readability "github.com/go-shiori/go-readability"
 )
 
-const RootDir = "backpocket-contents"
-
-func ReadableArticleFilePath(params ArticleParams, article readability.Article) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromArticleOrPath(article, params.Url), randomSuffix()))
+func ReadableArticleFilePath(storageDir string, params ArticleParams, article readability.Article) string {
+	return path.Join(storageDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromArticleOrPath(article, params.Url), randomSuffix()))
 }
 
-func NonReadableArticleFilePath(params ArticleParams) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix()))
+func NonReadableArticleFilePath(storageDir string, params ArticleParams) string {
+	return path.Join(storageDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix()))
 }
 
-func NonHTMLContentFilePath(params ArticleParams, contentType string) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix(), extension(contentType)))
+func NonHTMLContentFilePath(storageDir string, params ArticleParams, contentType string) string {
+	return path.Join(storageDir, fmt.Sprintf("%s-%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix(), extension(contentType)))
 }
 
 func extension(contentType string) string {

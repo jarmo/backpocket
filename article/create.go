@@ -13,7 +13,7 @@ import (
 	readability "github.com/go-shiori/go-readability"
 )
 
-func Create(params ArticleParams) string {
+func Create(storageDir string, params ArticleParams) string {
 	resp, err := http.Get(params.Url)
 	if err == nil {
 		defer resp.Body.Close()
@@ -23,47 +23,47 @@ func Create(params ArticleParams) string {
 				if strings.Contains(contentType, "text/html") {
 					metaRefreshUrl := HttpEquivRefreshUrl(params.Url, string(content[:]))
 					if metaRefreshUrl != nil {
-						return Create(ArticleParams{Url: metaRefreshUrl, ArchivedAt: params.ArchivedAt})
+						return Create(storageDir, ArticleParams{Url: metaRefreshUrl, ArchivedAt: params.ArchivedAt})
 					} else {
 						article, err := readability.FromReader(bytes.NewReader(content), params.Url.String())
 						if err == nil {
-							return createReadableArticle(params, article)
+							return createReadableArticle(storageDir, params, article)
 						} else {
-							return createNonReadableArticle(params, err)
+							return createNonReadableArticle(storageDir, params, err)
 						}
 					}
 				} else {
-					return createNonHTMLContent(params, contentType, content)
+					return createNonHTMLContent(storageDir, params, contentType, content)
 				}
 			} else {
 				panic(err)
 			}
 		} else {
-			return createNonReadableArticle(params, err)
+			return createNonReadableArticle(storageDir, params, err)
 		}
 	} else {
-		return createNonReadableArticle(params, err)
+		return createNonReadableArticle(storageDir, params, err)
 	}
 }
 
-func createReadableArticle(params ArticleParams, article readability.Article) string {
-	articleFilePath := ReadableArticleFilePath(params, article)
+func createReadableArticle(storageDir string, params ArticleParams, article readability.Article) string {
+	articleFilePath := ReadableArticleFilePath(storageDir, params, article)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
 	articleFile.WriteString(template.Render(template.ReadableArticleHTML(), template.CreateReadableArticleRenderArgs(params.Url, params.ArchivedAt, article)))
 	return articleFilePath
 }
 
-func createNonReadableArticle(params ArticleParams, err error) string {
-	articleFilePath := NonReadableArticleFilePath(params)
+func createNonReadableArticle(storageDir string, params ArticleParams, err error) string {
+	articleFilePath := NonReadableArticleFilePath(storageDir, params)
 	articleFile, _ := os.Create(articleFilePath)
 	defer articleFile.Close()
 	articleFile.WriteString(template.Render(template.NonReadableArticleHTML(), template.CreateNonReadableArticleRenderArgs(params.Url, params.ArchivedAt, err)))
 	return articleFilePath
 }
 
-func createNonHTMLContent(params ArticleParams, contentType string, content []byte) string {
-	contentFilePath := NonHTMLContentFilePath(params, contentType)
+func createNonHTMLContent(storageDir string, params ArticleParams, contentType string, content []byte) string {
+	contentFilePath := NonHTMLContentFilePath(storageDir, params, contentType)
 	contentFile, _ := os.Create(contentFilePath)
 	defer contentFile.Close()
 	contentFile.Write(content)

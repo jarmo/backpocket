@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/jarmo/backpocket/article"
+	"github.com/jarmo/backpocket/config"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 	}
 
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	os.MkdirAll(article.RootDir, os.ModePerm)
-	fmt.Println(article.Create(params))
+	storageDir := config.Read().StorageDir
+	os.MkdirAll(storageDir, os.ModePerm)
+	fmt.Println(article.Create(storageDir, params))
 }
