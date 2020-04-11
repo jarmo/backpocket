@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
-	goHttp "net/http"
 	"net/url"
 	"strings"
 
@@ -63,18 +62,10 @@ func replaceImageWithBase64DataSource(doc string, imageSource *url.URL) string {
 		defer resp.Body.Close()
 		if imageBytes, err := ioutil.ReadAll(resp.Body); err == nil {
 			base64Image := base64.StdEncoding.EncodeToString(imageBytes)
-			return strings.ReplaceAll(doc, imageSource.String(), fmt.Sprintf("data:%s;base64,%s", imageContentType(imageBytes), base64Image))
+			return strings.ReplaceAll(doc, imageSource.String(), fmt.Sprintf("data:%s;base64,%s", resp.Header.Get("Content-Type"), base64Image))
 		}
 	}
 
 	return doc
 }
 
-func imageContentType(imageBytes []byte) string {
-	contentType := goHttp.DetectContentType(imageBytes)
-	if strings.Contains(contentType, "text/xml") {
-		return "image/svg+xml"
-	} else {
-		return contentType
-	}
-}
