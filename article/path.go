@@ -48,7 +48,7 @@ func titleFromUrl(url *url.URL) string {
 	if len(urlPath) > 1 {
 		return formattedTitle(strings.ReplaceAll(path.Base(urlPath), path.Ext(urlPath), ""))
 	} else {
-		return formattedTitle(strings.ReplaceAll(url.Host, ".", "-"))
+		return formattedHost(url)
 	}
 }
 
@@ -72,7 +72,7 @@ func formattedTitle(title string) string {
 }
 
 func formattedHost(address *url.URL) string {
-	return strings.ReplaceAll(address.Host, ".", "-")
+	return strings.ReplaceAll(address.Hostname(), ".", "-")
 }
 
 func randomSuffix() string {
