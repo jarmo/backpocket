@@ -6,13 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io"
 	"io/ioutil"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/jarmo/backpocket/htmlparser"
 	"github.com/jarmo/backpocket/http"
 
 	"golang.org/x/net/html"
@@ -30,24 +30,18 @@ func Render(content string, args RenderArgs) string {
 		panic(err)
 	}
 
-	return renderNode(contentWithBase64DataSourceImages(bufferString.String()))
-}
-
-func renderNode(node *html.Node) string {
-	var buf bytes.Buffer
-	html.Render(io.Writer(&buf), node)
-	return buf.String()
+	return htmlparser.Render(contentWithBase64DataSourceImages(bufferString.String()))
 }
 
 func contentWithBase64DataSourceImages(content string) *html.Node {
 	doc, _ := html.Parse(strings.NewReader(content))
 
-	forEachNode(doc, func(node *html.Node) {
+	htmlparser.ForEachNode(doc, func(node *html.Node) {
 		if node.Type == html.ElementNode && node.Data == "img" {
-			if srcSetValue := attrByName(node, "srcset"); srcSetValue != "" {
+			if srcSetValue := htmlparser.AttrByName(node, "srcset"); srcSetValue != "" {
 				replaceImageWithBase64DataSource(node, bestImageSrcSetValue(srcSetValue))
 			} else {
-				imageSource, _ := url.Parse(attrByName(node, "src"))
+				imageSource, _ := url.Parse(htmlparser.AttrByName(node, "src"))
 				replaceImageWithBase64DataSource(node, imageSource)
 			}
 		}
@@ -76,19 +70,6 @@ func bestImageSrcSetValue(srcSetValue string) *url.URL {
 	return bestImageSourceUrl
 }
 
-type nodeFn func(*html.Node)
-
-func forEachNode(rootNode *html.Node, fn nodeFn) {
-	var walker func(*html.Node)
-	walker = func(node *html.Node) {
-		fn(node)
-		for child := node.FirstChild; child != nil; child = child.NextSibling {
-			walker(child)
-		}
-	}
-	walker(rootNode)
-}
-
 func replaceImageWithBase64DataSource(node *html.Node, imageSource *url.URL) {
 	nodeParent := node.Parent
 
@@ -103,16 +84,6 @@ func replaceImageWithBase64DataSource(node *html.Node, imageSource *url.URL) {
 	}
 
 	nodeParent.RemoveChild(node)
-}
-
-func attrByName(node *html.Node, name string) string {
-	for _, attr := range node.Attr {
-		if attr.Key == name {
-			return attr.Val
-		}
-	}
-
-	return ""
 }
 
 func imageAsBase64DataSource(imageSource *url.URL) (string, error) {
