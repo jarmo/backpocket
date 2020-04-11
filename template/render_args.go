@@ -56,7 +56,7 @@ func siteName(address *url.URL, article readability.Article) string {
 	if len(article.SiteName) > 0 {
 		return article.SiteName
 	} else {
-		return address.Host
+		return address.Hostname()
 	}
 }
 
