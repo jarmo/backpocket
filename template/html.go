@@ -31,10 +31,9 @@ func ReadableArticleHTML() string {
 					<small>{{.Byline}} • {{.SiteName}} • {{.ReadingTime}} minutes</small>
 				</header>
 				<main>{{.Content}}</main>
-				<script>%s</script>
 			</body>
 		</html>
-		`, ModernNormalizeStyles(), MilligramStyles(), Styles(), Scripts())
+		`, ModernNormalizeStyles(), MilligramStyles(), Styles())
 }
 
 func NonReadableArticleHTML() string {

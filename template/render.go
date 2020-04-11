@@ -30,13 +30,43 @@ func Render(content string, args RenderArgs) string {
 		panic(err)
 	}
 
-	return htmlparser.Render(contentWithBase64DataSourceImages(bufferString.String()))
+	doc, _ := html.Parse(strings.NewReader(bufferString.String()))
+
+	return htmlparser.Render(
+		contentWithAbsoluteIframeUrls(
+			args.Address.Scheme,
+			contentWithBase64DataSourceImages(doc)))
 }
 
-func contentWithBase64DataSourceImages(content string) *html.Node {
-	doc, _ := html.Parse(strings.NewReader(content))
+func contentWithAbsoluteIframeUrls(articleScheme string, rootNode *html.Node) *html.Node {
+	htmlparser.ForEachNode(rootNode, func(node *html.Node) {
+		if node.Type == html.ElementNode && node.Data == "iframe" {
+			srcValue := htmlparser.AttrByName(node, "src")
+			if strings.HasPrefix(srcValue, "//") {
+				nodeParent := node.Parent
+				var attributes []html.Attribute
+				for _, attr := range node.Attr {
+					if attr.Key == "src" {
+						attributes = append(attributes, html.Attribute{Key: "src", Val: articleScheme + ":" + srcValue})
+					} else {
+						attributes = append(attributes, attr)
+					}
+				}
+				newNode := &html.Node{
+					Type: html.ElementNode,
+					Data: "iframe",
+					Attr: attributes}
+				nodeParent.InsertBefore(newNode, node)
+				nodeParent.RemoveChild(node)
+			}
+		}
+	})
 
-	htmlparser.ForEachNode(doc, func(node *html.Node) {
+	return rootNode
+}
+
+func contentWithBase64DataSourceImages(rootNode *html.Node) *html.Node {
+	htmlparser.ForEachNode(rootNode, func(node *html.Node) {
 		if node.Type == html.ElementNode && node.Data == "img" {
 			if srcSetValue := htmlparser.AttrByName(node, "srcset"); srcSetValue != "" {
 				replaceImageWithBase64DataSource(node, bestImageSrcSetValue(srcSetValue))
@@ -47,7 +77,7 @@ func contentWithBase64DataSourceImages(content string) *html.Node {
 		}
 	})
 
-	return doc
+	return rootNode
 }
 
 func bestImageSrcSetValue(srcSetValue string) *url.URL {
