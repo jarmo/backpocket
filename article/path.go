@@ -19,11 +19,11 @@ func ReadableArticleFilePath(params ArticleParams, article readability.Article) 
 }
 
 func NonReadableArticleFilePath(params ArticleParams) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromPath(params.Url), randomSuffix()))
+	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix()))
 }
 
 func NonHTMLContentFilePath(params ArticleParams, contentType string) string {
-	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromPath(params.Url), randomSuffix(), extension(contentType)))
+	return path.Join(RootDir, fmt.Sprintf("%s-%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix(), extension(contentType)))
 }
 
 func extension(contentType string) string {
@@ -38,12 +38,18 @@ func titleFromArticleOrPath(article readability.Article, url *url.URL) string {
 	if len(strings.TrimSpace(article.Title)) > 0 {
 		return formattedTitle(article.Title)
 	} else {
-		return titleFromPath(url)
+		return titleFromUrl(url)
 	}
 }
 
-func titleFromPath(url *url.URL) string {
-	return formattedTitle(strings.ReplaceAll(path.Base(url.Path), path.Ext(url.Path), ""))
+func titleFromUrl(url *url.URL) string {
+	urlPath := url.Path
+
+	if len(urlPath) > 1 {
+		return formattedTitle(strings.ReplaceAll(path.Base(urlPath), path.Ext(urlPath), ""))
+	} else {
+		return formattedTitle(strings.ReplaceAll(url.Host, ".", "-"))
+	}
 }
 
 func formattedTitle(title string) string {
