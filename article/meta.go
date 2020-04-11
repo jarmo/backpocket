@@ -3,6 +3,7 @@ package article
 import (
 	"net/url"
 	"strings"
+	"path"
 
 	"golang.org/x/net/html"
 )
@@ -48,7 +49,7 @@ func HttpEquivRefreshUrl(articleUrl *url.URL, doc string) *url.URL {
 
 	if metaRefreshUrl != nil {
 		if metaRefreshUrl.Scheme == "" {
-			if absoluteUrl, err := url.Parse(articleUrl.String() + metaRefreshUrl.String()); err != nil {
+			if absoluteUrl, err := url.Parse(path.Join(articleUrl.String(), metaRefreshUrl.String())); err != nil {
 				return absoluteUrl
 			} else {
 				return nil
