@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/jarmo/backpocket/article"
@@ -15,6 +17,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	os.MkdirAll(article.RootDir, os.ModePerm)
 	fmt.Println(article.Create(params))
 }
