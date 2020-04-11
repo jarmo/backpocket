@@ -2,6 +2,7 @@ package htmlparser
 
 import (
 	"bytes"
+	"errors"
 	"io"
 
 	"golang.org/x/net/html"
@@ -13,17 +14,13 @@ func Render(node *html.Node) string {
 	return buf.String()
 }
 
-type nodeWalkFn func(*html.Node)
+type nodeForEachNodeFn func(*html.Node)
 
-func ForEachNode(rootNode *html.Node, fn nodeWalkFn) {
-	var walker func(*html.Node)
-	walker = func(node *html.Node) {
+func ForEachNode(rootNode *html.Node, fn nodeForEachNodeFn) {
+	walkNodes(rootNode, func(node *html.Node) error {
 		fn(node)
-		for child := node.FirstChild; child != nil; child = child.NextSibling {
-			walker(child)
-		}
-	}
-	walker(rootNode)
+		return nil
+	})
 }
 
 type nodeFindFn func(*html.Node) bool
@@ -31,17 +28,14 @@ type nodeFindFn func(*html.Node) bool
 func FindNode(rootNode *html.Node, fn nodeFindFn) *html.Node {
 	var foundNode *html.Node
 
-	var walker func(*html.Node)
-	walker = func(node *html.Node) {
+	walkNodes(rootNode, func(node *html.Node) error {
 		if fn(node) {
 			foundNode = node
-			return
+			return errors.New("interrupt")
 		}
-		for child := node.FirstChild; child != nil; child = child.NextSibling {
-			walker(child)
-		}
-	}
-	walker(rootNode)
+
+		return nil
+	})
 
 	return foundNode
 }
@@ -54,4 +48,21 @@ func AttrByName(node *html.Node, name string) string {
 	}
 
 	return ""
+}
+
+type nodeWalkFn func(*html.Node) error
+
+func walkNodes(rootNode *html.Node, fn nodeWalkFn) {
+	var walker func(*html.Node)
+	walker = func(node *html.Node) {
+		err := fn(node)
+		if err != nil {
+			return
+		}
+
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			walker(child)
+		}
+	}
+	walker(rootNode)
 }
