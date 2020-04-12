@@ -72,11 +72,18 @@ And to archive it:
 alias bp-archive='mkdir -p `backpocket path`/archive && mv -v `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive'
 ```
 
-And now just these aliases in succession:
+And why not create an alias for backpocket itself too:
 
 ```
-$ read-oldest-backpocket
-$ archive-oldest-backpocket
+alias bp=backpocket
+```
+
+And now just use these aliases:
+
+```
+$ bp "ARTICLE_URL"
+$ bp-read
+$ bp-archive
 ```
 
 
@@ -135,3 +142,17 @@ Since backpocket is written using Go and it has a wonderful cross-compile
 support then it also works without any problems on Windows. However, if you
 need to use any UNIX tools described in this README then use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) or some
 other Linux subsystem on Windows.
+
+There are some tricks which need to be done under WSL Ubuntu so that aliases written above would work.
+
+For reading:
+
+```
+alias bp-read='cmd.exe /c start $(wslpath -aw `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`)'
+```
+
+For archival:
+
+```
+alias bp-archive='mkdir -p $(backpocket path)/archive && mv -v `ls $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive'
+```
