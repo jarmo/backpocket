@@ -18,6 +18,14 @@ func main() {
 		os.Exit(0)
 	}
 
+	storageDir := config.Read().StorageDir
+	os.MkdirAll(storageDir, os.ModePerm)
+
+	if len(os.Args) == 2 && os.Args[1] == "path" {
+		fmt.Print(storageDir)
+		os.Exit(0)
+	}
+
 	params, err := article.Params(os.Args)
 	if err != nil {
 		fmt.Println(err)
@@ -26,8 +34,6 @@ func main() {
 	}
 
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	storageDir := config.Read().StorageDir
-	os.MkdirAll(storageDir, os.ModePerm)
 	fmt.Println(article.Create(storageDir, params))
 }
 
@@ -36,5 +42,6 @@ func printUsage() {
 
 USAGE:
   backpocket ARTICLE_URL [YYYY-MM-DD|SECONDS_FROM_EPOCH]
+  backpocket path
 `, VERSION))
 }
