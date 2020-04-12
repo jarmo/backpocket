@@ -37,19 +37,19 @@ Download latest binary from [releases](https://github.com/jarmo/backpocket/relea
 
 Using backpocket is simple too:
 
-```
+```sh
 $ backpocket "ARTICLE_URL"
 ```
 
 To open archived article immediately from command-line:
 
-```
+```sh
 $ open `backpocket "ARTICLE_URL"`
 ```
 
 To open any archived article later:
 
-```
+```sh
 $ open examples/successful.html
 ```
 
@@ -62,7 +62,7 @@ You can configure storage dir by editing backpocket configuration file `config.j
 
 Easy!
 
-```
+```sh
 $ grep -niR "trump" $(backpocket path)
 ```
 
@@ -71,31 +71,31 @@ $ grep -niR "trump" $(backpocket path)
 
 Easiest way to read oldest article would be to create alias for command line:
 
-```
+```sh
 alias bp-read='open `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`'
 ```
 
 Also alias for archival makes sense:
 
-```
+```sh
 alias bp-archive='mkdir -p `backpocket path`/archive && mv -v `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive'
 ```
 
 And create a function for search:
 
-```
+```sh
 function bp-search() { grep -noiRE ".{0,70}$1.{0,70}" `backpocket path` }
 ```
 
 And why not create an alias for the backpocket:
 
-```
+```sh
 alias bp=backpocket
 ```
 
 And now just use these aliases:
 
-```
+```sh
 $ bp "ARTICLE_URL"
 $ bp-read
 $ bp-archive
@@ -107,7 +107,7 @@ $ bp-search "TERM"
 
 Just use html2text together with other UNIX tools:
 
-```
+```sh
 $ cat examples/successful.html | sed 's/<img.*//g' | html2text | less
 ```
 
@@ -120,12 +120,12 @@ It is pretty easy and straightforward to import articles from Pocket too:
 2. Install [pup](https://github.com/EricChiang/pup) and [jq](https://stedolan.github.io/jq/);
 3. [Export](https://getpocket.com/export) from Pocket to HTML file; 
 4. Run the following command to import all archived articles where `ril_export.html` is the file Pocket exported:
-```
+```sh
 cat ril_export.html | pup 'ul:last-of-type a json{}' | jq -r '.[] | "\(.href) \(.time_added)"' | tail -r | xargs -P4 -L1 backpocket
 mkdir -p `backpocket path`/archive && mv $(ls -Adp `backpocket path`/* | grep -v "/$") `backpocket path`/archive
 ```
 5. Run the following command to import all non-archived articles from Pocket:
-```
+```sh
 cat ril_export.html | pup 'ul:first-of-type a json{}' | jq -r '.[] | "\(.href) \(.time_added)"' | tail -r | xargs -P4 -L1 backpocket
 ```
 
@@ -154,12 +154,12 @@ There are some tricks which need to be done under WSL Ubuntu so that aliases wri
 
 For reading:
 
-```
+```sh
 alias bp-read='cmd.exe /c start $(wslpath -aw `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`)'
 ```
 
 For archival:
 
-```
+```sh
 alias bp-archive='mkdir -p $(backpocket path)/archive && mv -v `ls $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive'
 ```
