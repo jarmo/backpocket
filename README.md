@@ -17,12 +17,12 @@ Backpocket is based on the algorithm created by Mozilla used to create Firefox
 Backpocket aims to be as simple as possible while offering a lot of features:
 
 * command-line tool for very easy usage;
-* stores articles on a local disk (see [examples/successful.html](an example));
+* stores articles on a local disk (see [an example](examples/successful.html));
 * images are stored as base64 data sources;
 * supports all kind of formats - when not html, then will be stored AS IS;
 * stored articles can be opened just with a browser or other tools depending on the format;
 * since articles are stored in their native format, then can do whatever with them - perform full-text search, convert to text etc;
-* articles which fail to be stored for some reason will still save a reference to them storing the original link (see [examples/failed.html](an example)).
+* articles which fail to be stored for some reason will still save a reference to them storing the original link (see [an example](examples/failed.html)).
 
 
 ## Installation
@@ -62,7 +62,7 @@ You can configure storage dir by editing backpocket configuration file `config.j
 Easy!
 
 ```
-$ grep -iR "trump" ARTICLES_DIR
+$ grep -iR "trump" examples
 ```
 
 
@@ -95,9 +95,7 @@ cat ril_export.html | pup 'ul:first-of-type a json{}' | jq -r '.[] | "\(.href) \
 This all might take some time depending on the count of articles, size of
 articles, speed of your internet connection and so on. Also, please not that
 there's a high probability that many of the articles saved to the Pocket in the
-past do not exist anymore in the Internet will be saved as failed articles
-- that's the problem with Internet and that's exactly the reason why archiving
-interesting/important things on your local disk makes sense in case you ever
+past do not exist anymore in the Internet will be saved as failed articles - that's the problem with Internet and that's exactly the reason why archiving interesting/important things on your local disk makes sense in case you ever
 want to return to any content.
 
 
