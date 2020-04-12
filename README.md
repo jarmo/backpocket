@@ -11,6 +11,7 @@ tools.
 Backpocket is based on the algorithm created by Mozilla used to create Firefox
 [Readability.js](https://github.com/mozilla/readability) functionality.
 
+![successful.png](examples/successful.png)
 
 ## Features
 
