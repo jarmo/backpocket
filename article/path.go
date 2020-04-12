@@ -28,8 +28,15 @@ func NonHTMLContentFilePath(storageDir string, params ArticleParams, contentType
 func extension(contentType string) string {
 	if strings.Contains(contentType, "text/plain") {
 		return "txt"
+	} else if strings.Contains(contentType, "xhtml") {
+		return "html"
 	} else {
-		return strings.Split(strings.Split(contentType, ";")[0], "/")[1]
+		contentTypeParts := strings.Split(strings.Split(contentType, ";")[0], "/")
+		if len(contentTypeParts) > 1 {
+			return contentTypeParts[1]
+		} else {
+			return contentTypeParts[0]
+		}
 	}
 }
 
