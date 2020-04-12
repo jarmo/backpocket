@@ -14,10 +14,6 @@ type ArticleParams struct {
 }
 
 func Params(args []string) (ArticleParams, error) {
-	if len(args) < 2 {
-		return ArticleParams{}, errors.New("Not enough arguments")
-	}
-
 	rawUrl := args[1]
 	uri, err := url.Parse(rawUrl)
 	if err != nil {
