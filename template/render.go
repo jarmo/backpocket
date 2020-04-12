@@ -81,7 +81,7 @@ func contentWithBase64DataSourceImages(rootNode *html.Node) *html.Node {
 }
 
 func bestImageSrcSetValue(srcSetValue string) *url.URL {
-	imageSources := strings.Split(srcSetValue, ",")
+	imageSources := strings.Split(srcSetValue, ", ")
 	var bestImageSource string
 	var bestImageSourceSize = 0
 	replaceNonNumericCharacters := regexp.MustCompile("[^0-9]")
@@ -91,11 +91,16 @@ func bestImageSrcSetValue(srcSetValue string) *url.URL {
 			bestImageSource = imageSource
 			break
 		}
-		imageSizeAsString := replaceNonNumericCharacters.ReplaceAllString(string(imageSourceParts[1]), "")
-		if imageSize, err := strconv.Atoi(imageSizeAsString); err == nil {
-			if imageSize > bestImageSourceSize {
-				bestImageSourceSize = imageSize
-				bestImageSource = string(imageSourceParts[0])
+
+		if len(imageSourceParts) == 1 {
+			bestImageSource = imageSource
+		} else {
+			imageSizeAsString := replaceNonNumericCharacters.ReplaceAllString(string(imageSourceParts[1]), "")
+			if imageSize, err := strconv.Atoi(imageSizeAsString); err == nil {
+				if imageSize > bestImageSourceSize {
+					bestImageSourceSize = imageSize
+					bestImageSource = string(imageSourceParts[0])
+				}
 			}
 		}
 	}
@@ -121,6 +126,10 @@ func replaceImageWithBase64DataSource(node *html.Node, imageSource *url.URL) {
 }
 
 func imageAsBase64DataSource(imageSource *url.URL) (string, error) {
+	if imageSource == nil {
+		return "", errors.New("No image source")
+	}
+
 	if imageSource.Scheme != "https" && imageSource.Scheme != "http" {
 		return "", errors.New("Not supported scheme!")
 	}
