@@ -87,6 +87,10 @@ func bestImageSrcSetValue(srcSetValue string) *url.URL {
 	replaceNonNumericCharacters := regexp.MustCompile("[^0-9]")
 	for _, imageSource := range imageSources {
 		imageSourceParts := strings.Split(strings.TrimSpace(imageSource), " ")
+		if strings.HasPrefix(imageSourceParts[0], "data:") {
+			bestImageSource = imageSource
+			break
+		}
 		imageSizeAsString := replaceNonNumericCharacters.ReplaceAllString(string(imageSourceParts[1]), "")
 		if imageSize, err := strconv.Atoi(imageSizeAsString); err == nil {
 			if imageSize > bestImageSourceSize {
