@@ -38,13 +38,13 @@ Download latest binary from [releases](https://github.com/jarmo/backpocket/relea
 Using backpocket is simple too:
 
 ```
-$ backpocket ARTICLE_URL
+$ backpocket "ARTICLE_URL"
 ```
 
 To open archived article immediately from command-line:
 
 ```
-$ open `backpocket ARTICLE_URL`
+$ open `backpocket "ARTICLE_URL"`
 ```
 
 To open any archived article later:
