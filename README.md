@@ -63,13 +63,13 @@ You can configure storage dir by editing backpocket configuration file `config.j
 Easiest way to read would be to create aliases for command line to read oldest article:
 
 ```
-$ alias read-oldest-backpocket='open `ls ~/backpocket/* | head -1`'
+alias bp-read='open `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`'
 ```
 
 And to archive it:
 
 ```
-$ alias archive-oldest-backpocket='mkdir -p ~/backpocket/archive && mv -v `ls ~/backpocket/* | head -1` ~/backpocket/archive'
+alias bp-archive='mkdir -p `backpocket path`/archive && mv -v `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive'
 ```
 
 And now just these aliases in succession:
@@ -108,7 +108,7 @@ It is pretty easy and straightforward to import articles from Pocket too:
 4. Run the following command to import all archived articles where `ril_export.html` is the file Pocket exported:
 ```
 cat ril_export.html | pup 'ul:last-of-type a json{}' | jq -r '.[] | "\(.href) \(.time_added)"' | tail -r | xargs -P4 -L1 backpocket
-mkdir ~/backpocket/archive && mv ~/backpocket/*.* ~/backpocket/archive
+mkdir -p `backpocket path`/archive && mv $(ls -Adp `backpocket path`/* | grep -v "/$") `backpocket path`/archive
 ```
 5. Run the following command to import all non-archived articles from Pocket:
 ```
