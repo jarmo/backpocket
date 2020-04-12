@@ -38,13 +38,13 @@ Download latest binary from [releases](https://github.com/jarmo/backpocket/relea
 Using backpocket is simple too:
 
 ```sh
-$ backpocket "ARTICLE_URL"
+$ backpocket 'ARTICLE_URL'
 ```
 
 To open archived article immediately from command-line:
 
 ```sh
-$ open `backpocket "ARTICLE_URL"`
+$ open `backpocket 'ARTICLE_URL'`
 ```
 
 To open any archived article later:
@@ -63,7 +63,7 @@ You can configure storage dir by editing backpocket configuration file `config.j
 Easy!
 
 ```sh
-$ grep -niR "trump" $(backpocket path)
+$ grep -niR 'trump' $(backpocket path)
 ```
 
 
@@ -96,10 +96,10 @@ alias bp=backpocket
 And now just use these aliases:
 
 ```sh
-$ bp "ARTICLE_URL"
+$ bp 'ARTICLE_URL'
 $ bp-read
 $ bp-archive
-$ bp-search "TERM"
+$ bp-search 'TERM'
 ```
 
 
