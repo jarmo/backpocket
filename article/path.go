@@ -59,25 +59,20 @@ func titleFromUrl(url *url.URL) string {
 }
 
 func formattedTitle(title string) string {
-	replaceInvalidCharactersRegexp := regexp.MustCompile("[^\x00-\x7F]")
-	replaceUnsupportedCharactersRegexp := regexp.MustCompile("[<>:\"'/\\|?*=;.%,^{}]")
-	replaceDuplicateAdjacentDashesRegexp := regexp.MustCompile("-{2,}")
+	allowedCharactersRegexp := regexp.MustCompile("[^a-zA-Z0-9-]")
+	duplicateAdjacentDashesRegexp := regexp.MustCompile("-{2,}")
 	formattedTitle := strings.TrimSpace(strings.Trim(strings.Trim(
-		replaceDuplicateAdjacentDashesRegexp.ReplaceAllString(
-			replaceUnsupportedCharactersRegexp.ReplaceAllString(
-				replaceInvalidCharactersRegexp.ReplaceAllString(
-					strings.ReplaceAll(
-						strings.ReplaceAll(title,
-							" ", "-"),
-						"&", "and"),
-					""),
-				""),
-			"-"),
+		allowedCharactersRegexp.ReplaceAllString(
+			strings.ReplaceAll(
+				strings.ReplaceAll(title,
+					" ", "-"),
+				"&", "and"),
+			""),
 		"-"),
 		"."))
 
 	maxTitleLength := int(math.Min(64, float64(len(formattedTitle))))
-	return formattedTitle[:maxTitleLength]
+	return duplicateAdjacentDashesRegexp.ReplaceAllString(formattedTitle[:maxTitleLength], "-")
 }
 
 func formattedHost(address *url.URL) string {
