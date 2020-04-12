@@ -63,13 +63,13 @@ You can configure storage dir by editing backpocket configuration file `config.j
 Easiest way to read would be to create aliases for command line to read oldest article:
 
 ```
-$ alias read-oldest-backpocket='open `find ~/backpocket -depth 1 -type f -exec ls "{}" + | head -1`'
+$ alias read-oldest-backpocket='open `ls ~/backpocket/* | head -1`'
 ```
 
 And to archive it:
 
 ```
-$ alias archive-oldest-backpocket='mkdir -p ~/backpocket/archive && mv -v `find ~/backpocket -depth 1 -type f -exec ls "{}" + | head -1` ~/backpocket/archive'
+$ alias archive-oldest-backpocket='mkdir -p ~/backpocket/archive && mv -v `ls ~/backpocket/* | head -1` ~/backpocket/archive'
 ```
 
 And now just these aliases in succession:
