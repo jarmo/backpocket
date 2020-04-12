@@ -63,7 +63,7 @@ You can configure storage dir by editing backpocket configuration file `config.j
 Easy!
 
 ```sh
-$ grep -niR "trump" $(backpocket path)
+$ grep -noliR "trump" $(backpocket path)
 ```
 
 
@@ -84,7 +84,7 @@ alias bp-archive='mkdir -p `backpocket path`/archive && mv -v `ls -Adp $(backpoc
 And create a function for search:
 
 ```sh
-function bp-search() { grep -noiRE ".{0,70}$1.{0,70}" `backpocket path` }
+function bp-search() { grep -noliR "$1" `backpocket path` }
 ```
 
 And why not create an alias for the backpocket:
