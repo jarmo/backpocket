@@ -58,6 +58,28 @@ When readable version cannot be created (for example, `ARTICLE_URL` points to an
 You can configure storage dir by editing backpocket configuration file `config.json`, which is stored in a location specified by [XDG Base Directory standard](https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)).
 
 
+## Reading and archiving
+
+Easiest way to read would be to create aliases for command line to read oldest article:
+
+```
+$ alias read-oldest-backpocket='open `find ~/backpocket -type f -exec ls -tr "{}" + | head -1`'
+```
+
+And to archive it:
+
+```
+$ alias archive-oldest-backpocket='mkdir -p ~/backpocket/archive && mv -v `find ~/backpocket -type f -exec ls -tr "{}" + | head -1` ~/backpocket/archive'
+```
+
+And now just these aliases in succession:
+
+```
+$ read-oldest-backpocket
+$ archive-oldest-backpocket
+```
+
+
 ## What about full text search?!
 
 Easy!
@@ -103,6 +125,8 @@ want to return to any content.
 ## Backup, syncing, mobile support etc.
 
 Backpocket does not offer anything else except storing articles for future use.
+Use any 3rd party tools for backup, syncing or showing articles on mobile (for
+example, serve articles using a static web server).
 
 
 ## Windows support
