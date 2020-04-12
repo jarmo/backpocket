@@ -58,21 +58,36 @@ When readable version cannot be created (for example, `ARTICLE_URL` points to an
 You can configure storage dir by editing backpocket configuration file `config.json`, which is stored in a location specified by [XDG Base Directory standard](https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html)).
 
 
-## Reading and archiving
+## What about full text search?!
 
-Easiest way to read would be to create aliases for command line to read oldest article:
+Easy!
+
+```
+$ grep -niR "trump" $(backpocket path)
+```
+
+
+## Aliases for reading, archiving and searching
+
+Easiest way to read oldest article would be to create alias for command line:
 
 ```
 alias bp-read='open `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`'
 ```
 
-And to archive it:
+Also alias for archival makes sense:
 
 ```
 alias bp-archive='mkdir -p `backpocket path`/archive && mv -v `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive'
 ```
 
-And why not create an alias for backpocket itself too:
+And create a function for search:
+
+```
+function bp-search() { grep -noiRE ".{0,70}$1.{0,70}" `backpocket path` }
+```
+
+And why not create an alias for the backpocket:
 
 ```
 alias bp=backpocket
@@ -84,15 +99,7 @@ And now just use these aliases:
 $ bp "ARTICLE_URL"
 $ bp-read
 $ bp-archive
-```
-
-
-## What about full text search?!
-
-Easy!
-
-```
-$ grep -iR "trump" examples
+$ bp-search "TERM"
 ```
 
 
