@@ -1,6 +1,6 @@
 module github.com/jarmo/backpocket
 
-go 1.12
+go 1.13
 
 require (
 	github.com/ericchiang/pup v0.4.0 // indirect
