@@ -3,7 +3,7 @@ package article
 import (
 	"fmt"
 	"net/url"
-	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -14,15 +14,15 @@ import (
 )
 
 func ReadableArticleFilePath(storageDir string, params ArticleParams, article readability.Article) string {
-	return path.Join(storageDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromArticleOrPath(article, params.Url), randomSuffix()))
+	return filepath.Join(storageDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromArticleOrPath(article, params.Url), randomSuffix()))
 }
 
 func NonReadableArticleFilePath(storageDir string, params ArticleParams) string {
-	return path.Join(storageDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix()))
+	return filepath.Join(storageDir, fmt.Sprintf("%s-%s-%s.html", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix()))
 }
 
 func NonHTMLContentFilePath(storageDir string, params ArticleParams, contentType string) string {
-	return path.Join(storageDir, fmt.Sprintf("%s-%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix(), extension(contentType)))
+	return filepath.Join(storageDir, fmt.Sprintf("%s-%s-%s.%s", params.ArchivedAt.Format("2006-01-02"), titleFromUrl(params.Url), randomSuffix(), extension(contentType)))
 }
 
 func extension(contentType string) string {
@@ -45,7 +45,7 @@ func titleFromUrl(url *url.URL) string {
 	urlPath := url.Path
 
 	if len(urlPath) > 1 {
-		return formattedTitle(strings.ReplaceAll(path.Base(urlPath), path.Ext(urlPath), ""))
+		return formattedTitle(strings.ReplaceAll(filepath.Base(urlPath), filepath.Ext(urlPath), ""))
 	} else {
 		return formattedHost(url)
 	}

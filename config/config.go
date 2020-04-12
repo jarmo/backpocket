@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/user"
-	"path"
+	"path/filepath"
 
 	"github.com/pinzolo/xdgdir"
 )
@@ -33,8 +33,10 @@ func writeDefaultConfiguration(configurationPath string) config {
 	if err != nil {
 		panic(err)
 	}
-	conf := config{StorageDir: path.Join(usr.HomeDir, "backpocket")}
-	os.MkdirAll(path.Dir(configurationPath), os.ModePerm)
+	conf := config{StorageDir: filepath.Join(usr.HomeDir, "backpocket")}
+	if err := os.MkdirAll(filepath.Dir(configurationPath), os.ModePerm); err != nil {
+		panic(err)
+	}
 
 	if configJSON, err := json.MarshalIndent(conf, "", " "); err != nil {
 		panic(err)
