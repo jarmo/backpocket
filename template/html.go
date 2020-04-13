@@ -18,7 +18,7 @@ func ReadableArticleHTML() string {
 				<style>%s</style>
 			</head>
 			<body>
-				<header>
+				<header id="article-header">
 					<h1>{{.Title}}</h1>
 					<div class="source-info">
 						<div>Archived at {{.ArchivedAt}}</div>

@@ -6,6 +6,43 @@ func Styles() string {
 			font-size: 1.8em;
 		}
 
+		body > main {
+			width: 30%;
+			margin: 0 auto;
+		}
+
+		#article-header {
+			width: 100%;
+			padding: 2em;
+			margin: 0 auto;
+			margin-bottom: 10em;
+			text-align: center;
+		}
+
+		#article-header figure {
+			width: 60%;
+			margin: 0 auto;
+		}
+
+		#article-header figcaption {
+			width: 50%;
+			margin: 0 auto;
+		}
+
+		#article-header small,
+		#article-header .source-info {
+			color: gray;
+			margin-bottom: 1.5em;
+		}
+
+		#article-header .source-info {
+			font-size: 90%;
+		}
+
+		#article-header img {
+			margin-bottom: 1em;
+		}
+
 		blockquote,
 		figure {
 			margin: 0;
@@ -13,49 +50,22 @@ func Styles() string {
 		
 		img, iframe {
 			max-width: 100%;
+			display: block;
+			margin: 0 auto;
 		}
 
 		pre, code {
 			background-color: rgba(226, 226, 226, .4);
+			white-space: break-spaces;
+			word-wrap: anywhere;
 		}
 
 		pre > code {
 		  background-color: initial;
 		}
 
-		pre, code {
-			white-space: break-spaces;
-			word-wrap: anywhere;
-		}
-
-		body > header {
-			width: 80%;
-			margin: 0 auto;
-			margin-bottom: 10em;
-			text-align: center;
-		}
-
-		body > header small,
-		body > header .source-info {
-			color: gray;
-			margin-bottom: 1.5em;
-		}
-
-		body > header .source-info {
-			font-size: 90%;
-		}
-
-		body > header img {
-			margin-bottom: 1em;
-		}
-
 		body > main figure {
 			text-align: center;
-		}
-
-		body > main {
-			width: 45%;
-			margin: 0 auto;
 		}
 
 		figure figcaption {
@@ -71,18 +81,48 @@ func Styles() string {
 			text-decoration: underline;
 		}
 
-		@media (max-width: 1279px) {
-			body > main {
-				width: 85%;
+		@media (max-width: 768px) {
+			body {
+				font-size: 2.3em;
 			}
 
-			body > header {
+			body > main {
+				width: 70%;
+			}
+
+			#article-header,
+			#article-header figure,
+			#article-header figcaption {
+				width: 90%;
+			}
+
+			#article-header {
 				margin-top: 2em;
 				margin-bottom: 5em;
+				padding: .3em;
 			}
 
-			body > header h1 {
-				font-size: 1.8em;
+			h1 {
+				font-size: 180%;
+			}
+
+			h2, h3, h4, h5, h6 {
+				font-size: 150%;
+			}
+
+			#article-header figure,
+			#article-header figcaption {
+				text-align: center;
+			}
+		}
+
+		@media (max-width: 576px) {
+			body {
+				font-size: 2em;
+			}
+
+			body > main {
+				width: 90%;
 			}
 		}
 `
