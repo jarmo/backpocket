@@ -18,12 +18,12 @@ Backpocket is based on the algorithm created by Mozilla used to create Firefox
 Backpocket aims to be as simple as possible while offering a lot of features:
 
 * command-line tool for very easy usage;
-* stores articles on a local disk (see [an example](https://rawcdn.githack.com/jarmo/backpocket/696d581a0124517dc8dd1eaffc389c8c0df6c36a/examples/successful.html));
+* stores articles on a local disk (see [an example](https://raw.githack.com/jarmo/backpocket/master/examples/successful.html));
 * images are stored as base64 data sources;
 * supports all kind of formats - when not html, then will be stored AS IS;
 * stored articles can be opened just with a browser or other tools depending on the format;
 * since articles are stored in their native format, then can do whatever with them - perform full-text search, convert to text etc;
-* articles which fail to be stored for some reason will still save a reference to them storing the original link (see [an example](https://rawcdn.githack.com/jarmo/backpocket/696d581a0124517dc8dd1eaffc389c8c0df6c36a/examples/failed.html)).
+* articles which fail to be stored for some reason will still save a reference to them storing the original link (see [an example](https://raw.githack.com/jarmo/backpocket/master/examples/failed.html)).
 
 
 ## Installation
