@@ -3,7 +3,7 @@ GOARCH = amd64
 GO_BUILD = GOARCH=${GOARCH} go build -mod=vendor
 PREFIX ?= ${GOPATH}
 
-all: clean linux darwin windows
+all: clean examples linux darwin windows
 
 clean:
 	rm -rf bin/
@@ -11,6 +11,10 @@ clean:
 vendor:
 	go mod vendor
 	go mod tidy
+
+examples:
+	mv -f `go run . http://www.cnn.com/2017/06/12/politics/donald-trump-cabinet-meeting/index.html` examples/successful.html
+	mv -f `go run . http://failed-article-url.com` examples/failed.html
 
 linux: vendor
 	GOOS=linux ${GO_BUILD} -o bin/linux_${GOARCH}/${BINARY}
@@ -27,4 +31,4 @@ install:
 release: all
 	script/release.sh
 
-.PHONY: all clean release vendor linux darwin windows install
+.PHONY: all examples clean release vendor linux darwin windows install
