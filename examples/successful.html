@@ -15,6 +15,43 @@
 			font-size: 1.8em;
 		}
 
+		body > main {
+			width: 20%;
+			margin: 0 auto;
+		}
+
+		#article-header {
+			width: 100%;
+			padding: 2em;
+			margin: 0 auto;
+			margin-bottom: 10em;
+			text-align: center;
+		}
+
+		#article-header figure {
+			width: 60%;
+			margin: 0 auto;
+		}
+
+		#article-header figcaption {
+			width: 50%;
+			margin: 0 auto;
+		}
+
+		#article-header small,
+		#article-header .source-info {
+			color: gray;
+			margin-bottom: 1.5em;
+		}
+
+		#article-header .source-info {
+			font-size: 90%;
+		}
+
+		#article-header img {
+			margin-bottom: 1em;
+		}
+
 		blockquote,
 		figure {
 			margin: 0;
@@ -22,49 +59,22 @@
 		
 		img, iframe {
 			max-width: 100%;
+			display: block;
+			margin: 0 auto;
 		}
 
 		pre, code {
 			background-color: rgba(226, 226, 226, .4);
+			white-space: break-spaces;
+			word-wrap: anywhere;
 		}
 
 		pre > code {
 		  background-color: initial;
 		}
 
-		pre, code {
-			white-space: break-spaces;
-			word-wrap: anywhere;
-		}
-
-		body > header {
-			width: 80%;
-			margin: 0 auto;
-			margin-bottom: 10em;
-			text-align: center;
-		}
-
-		body > header small,
-		body > header .source-info {
-			color: gray;
-			margin-bottom: 1.5em;
-		}
-
-		body > header .source-info {
-			font-size: 90%;
-		}
-
-		body > header img {
-			margin-bottom: 1em;
-		}
-
 		body > main figure {
 			text-align: center;
-		}
-
-		body > main {
-			width: 45%;
-			margin: 0 auto;
 		}
 
 		figure figcaption {
@@ -80,27 +90,82 @@
 			text-decoration: underline;
 		}
 
-		@media (max-width: 1279px) {
+		@media (max-width: 2560px) {
 			body > main {
-				width: 85%;
+				width: 30%;
+			}
+		}
+
+		@media (max-width: 1920px) {
+			body > main {
+				width: 40%;
+			}
+		}
+
+		@media (max-width: 1680px) {
+			body > main {
+				width: 45%;
+			}
+		}
+
+		@media (max-width: 1280px) {
+			body > main {
+				width: 50%;
 			}
 
-			body > header {
+			#article-header,
+			#article-header figure,
+			#article-header figcaption {
+				width: 90%;
+			}
+
+			#article-header {
 				margin-top: 2em;
 				margin-bottom: 5em;
+				padding: .3em;
+			}
+		}
+
+		@media (max-width: 992px) {
+			body > main {
+				width: 60%;
+			}
+		}
+
+		@media (max-width: 768px) {
+			body {
+				font-size: 2.3em;
 			}
 
-			body > header h1 {
-				font-size: 1.8em;
+			body > main {
+				width: 70%;
+			}
+
+			h1 {
+				font-size: 180%;
+			}
+
+			h2, h3, h4, h5, h6 {
+				font-size: 150%;
+			}
+		}
+
+		@media (max-width: 576px) {
+			body {
+				font-size: 2em;
+			}
+
+			body > main {
+				width: 90%;
 			}
 		}
 </style>
 			</head>
 			<body>
-				<header>
+				<header id="article-header">
 					<h1>Donald Trump just held the weirdest Cabinet meeting ever</h1>
 					<div class="source-info">
-						<div>Archived at April 12, 2020</div>
+						<div>Archived at April 14, 2020</div>
 						<div><a href="http://www.cnn.com/2017/06/12/politics/donald-trump-cabinet-meeting/index.html">View Original</a></div>
 					</div>
 					<figure>
@@ -109,7 +174,7 @@
 					</figure>
 					<small>Chris Cillizza, CNN Editor-at-large • CNN • 2 minutes</small>
 				</header>
-				<main><div id="readability-page-1" class="page"><section data-eq-pts="xsmall: 0, medium: 460, large: 780, full16x9: 1100" id="body-text" data-vr-zone="zone-1-0" data-zone-label="bodyText" data-containers="24" id="body-text" data-zn-id="body-text"><div><p><cite> (CNN)</cite>Leave it to Donald Trump to reinvent the Cabinet meeting.</p><p>The public portion of these gatherings of all of the president&#39;s top advisers are usually staid affairs.  Photographers are let in to take pictures. The president makes a very brief statement. A reporter shouts a question, unanswered. The end.</p><p>Donald Trump did something very different in his Cabinet meeting Monday.</p><ul data-layout="list-hierarchical-xs"></ul><p>First, he reviewed the various alleged successes of his first 143 days and made this remarkable claim: &#34;Never has there been a president....with few exceptions...who&#39;s passed more legislation, who&#39;s done more things than I have.&#34;</p><p>Um, ok.  While Trump has signed a number of executive orders and actions -- the most high profile of which, the <a href="http://www.cnn.com/2017/06/12/politics/9th-circuit-travel-ban/index.html">so-called &#34;travel ban&#34; was, again, blocked by a court on Monday </a>-- what he hasn&#39;t really done is pass actual legislation through Congress. The health care bill is tied up in Senate machinations. Tax reform hasn&#39;t moved an inch. Funding for the border wall hasn&#39;t happened. And so on.</p><div><p>(Nota bene: You can&#39;t say &#34;never has&#34; something happened and then say &#34;with few exceptions.&#34; Either it&#39;s never happened or it, well, has.)</p><p>But, that wasn&#39;t even close to the weirdest part of the Cabinet meeting!</p><p>Once Trump finished touting his administration&#39;s accomplishments, he turned to several of his newly-minted Cabinet secretaries like Agriculture Secretary Sonny Perdue. Each of those Cabinet secretaries lavished praise on Trump, which he accepted without comment but with a broad smile.</p><p>At first, I thought Trump was just going to have the new members of the Cabinet spend a few minutes praising him. NOPE!  It soon became clear that Trump planned to have <em>every</em> Cabinet member speak. And when I say &#34;speak&#34; what I really mean is &#34;praise Trump for his accomplishments, his foresight, his just being awesome.&#34;</p><p>You think I am exaggerating. I am not. Here&#39;s what White House Chief of Staff <a href="https://twitter.com/CNNPolitics/status/874297130164289536" target="_blank">Reince Priebus said about Trump</a>: &#34;We thank you for the opportunity and blessing to serve your agenda.&#34;</p><p>I mean, WHAT?!?</p><p>The whole thing reminded me of a scene directly from the boardroom of &#34;The Apprentice.&#34; A group of supplicants all desperately trying to hold on to their spots on the show by effusively praising Trump -- each one trying to take it a step further than the last. And Trump in the middle of it all, totally and completely pleased with himself. (Reminder: Around that Cabinet table are hugely accomplished generals, billionaires and political people with long track records of success.)</p><div><div><div><p></p></div></div></div><p>What those contestants knew is the same thing Trump&#39;s Cabinet has now realized: Flattery will get you everywhere. Donald Trump&#39;s favorite topic of conversation is Donald Trump. The best way to talk about Donald Trump, if you want to keep working for Donald Trump, is to praise Donald Trump. The more over-the-top, the better.</p><p>Chuck Schumer was quick off the line to mock Trump with this re-creation of the Cabinet meeting:</p><ul data-layout="list-hierarchical-xs"></ul><p>There&#39;s a tendency in Trump&#39;s presidency to overlook or dismiss these smaller sorts of things. &#34;Keep focused on the stuff that really matters,&#34; people tweet at me every day, all day. (For liberals sending those tweets, it&#39;s about Russia and Trump&#39;s finances. For conservatives, it&#39;s Trump&#39;s many accomplishments that are being allegedly ignored.)</p><p>My contention is that things like this Cabinet meeting -- while totally inconsequential in terms of actual policy -- are deeply revealing about who Trump is and how he views himself, the people who work for him and the world.  And how he views all of those things is this: With Trump at the center and everyone a spoke emanating from his hub.</p></div></div></section></div></main>
+				<main><div id="readability-page-1" class="page"><section data-eq-pts="xsmall: 0, medium: 460, large: 780, full16x9: 1100" id="body-text" data-vr-zone="zone-1-0" data-zone-label="bodyText" data-containers="24" id="body-text" data-zn-id="body-text"><div><p><cite> (CNN)</cite>Leave it to Donald Trump to reinvent the Cabinet meeting.</p><p>The public portion of these gatherings of all of the president&#39;s top advisers are usually staid affairs.  Photographers are let in to take pictures. The president makes a very brief statement. A reporter shouts a question, unanswered. The end.</p><p>Donald Trump did something very different in his Cabinet meeting Monday.</p><ul data-layout="list-hierarchical-xs"></ul><p>First, he reviewed the various alleged successes of his first 143 days and made this remarkable claim: &#34;Never has there been a president....with few exceptions...who&#39;s passed more legislation, who&#39;s done more things than I have.&#34;</p><p>Um, ok.  While Trump has signed a number of executive orders and actions -- the most high profile of which, the <a href="http://www.cnn.com/2017/06/12/politics/9th-circuit-travel-ban/index.html">so-called &#34;travel ban&#34; was, again, blocked by a court on Monday </a>-- what he hasn&#39;t really done is pass actual legislation through Congress. The health care bill is tied up in Senate machinations. Tax reform hasn&#39;t moved an inch. Funding for the border wall hasn&#39;t happened. And so on.</p><div><p>(Nota bene: You can&#39;t say &#34;never has&#34; something happened and then say &#34;with few exceptions.&#34; Either it&#39;s never happened or it, well, has.)</p><p>But, that wasn&#39;t even close to the weirdest part of the Cabinet meeting!</p><p>Once Trump finished touting his administration&#39;s accomplishments, he turned to several of his newly-minted Cabinet secretaries like Agriculture Secretary Sonny Perdue. Each of those Cabinet secretaries lavished praise on Trump, which he accepted without comment but with a broad smile.</p><p>At first, I thought Trump was just going to have the new members of the Cabinet spend a few minutes praising him. NOPE!  It soon became clear that Trump planned to have <em>every</em> Cabinet member speak. And when I say &#34;speak&#34; what I really mean is &#34;praise Trump for his accomplishments, his foresight, his just being awesome.&#34;</p><p>You think I am exaggerating. I am not. Here&#39;s what White House Chief of Staff <a href="https://twitter.com/CNNPolitics/status/874297130164289536" target="_blank">Reince Priebus said about Trump</a>: &#34;We thank you for the opportunity and blessing to serve your agenda.&#34;</p><p>I mean, WHAT?!?</p><p>The whole thing reminded me of a scene directly from the boardroom of &#34;The Apprentice.&#34; A group of supplicants all desperately trying to hold on to their spots on the show by effusively praising Trump -- each one trying to take it a step further than the last. And Trump in the middle of it all, totally and completely pleased with himself. (Reminder: Around that Cabinet table are hugely accomplished generals, billionaires and political people with long track records of success.)</p><div><div><div><p><img src="data:image/jpeg;base64,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"/></p></div></div></div><p>What those contestants knew is the same thing Trump&#39;s Cabinet has now realized: Flattery will get you everywhere. Donald Trump&#39;s favorite topic of conversation is Donald Trump. The best way to talk about Donald Trump, if you want to keep working for Donald Trump, is to praise Donald Trump. The more over-the-top, the better.</p><p>Chuck Schumer was quick off the line to mock Trump with this re-creation of the Cabinet meeting:</p><ul data-layout="list-hierarchical-xs"></ul><p>There&#39;s a tendency in Trump&#39;s presidency to overlook or dismiss these smaller sorts of things. &#34;Keep focused on the stuff that really matters,&#34; people tweet at me every day, all day. (For liberals sending those tweets, it&#39;s about Russia and Trump&#39;s finances. For conservatives, it&#39;s Trump&#39;s many accomplishments that are being allegedly ignored.)</p><p>My contention is that things like this Cabinet meeting -- while totally inconsequential in terms of actual policy -- are deeply revealing about who Trump is and how he views himself, the people who work for him and the world.  And how he views all of those things is this: With Trump at the center and everyone a spoke emanating from his hub.</p></div></div></section></div></main>
 			
 		
 		</body></html>

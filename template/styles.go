@@ -7,7 +7,7 @@ func Styles() string {
 		}
 
 		body > main {
-			width: 30%;
+			width: 20%;
 			margin: 0 auto;
 		}
 
@@ -81,13 +81,27 @@ func Styles() string {
 			text-decoration: underline;
 		}
 
-		@media (max-width: 768px) {
-			body {
-				font-size: 2.3em;
-			}
-
+		@media (max-width: 2560px) {
 			body > main {
-				width: 70%;
+				width: 30%;
+			}
+		}
+
+		@media (max-width: 1920px) {
+			body > main {
+				width: 40%;
+			}
+		}
+
+		@media (max-width: 1680px) {
+			body > main {
+				width: 45%;
+			}
+		}
+
+		@media (max-width: 1280px) {
+			body > main {
+				width: 50%;
 			}
 
 			#article-header,
@@ -101,6 +115,22 @@ func Styles() string {
 				margin-bottom: 5em;
 				padding: .3em;
 			}
+		}
+
+		@media (max-width: 992px) {
+			body > main {
+				width: 60%;
+			}
+		}
+
+		@media (max-width: 768px) {
+			body {
+				font-size: 2.3em;
+			}
+
+			body > main {
+				width: 70%;
+			}
 
 			h1 {
 				font-size: 180%;
@@ -108,11 +138,6 @@ func Styles() string {
 
 			h2, h3, h4, h5, h6 {
 				font-size: 150%;
-			}
-
-			#article-header figure,
-			#article-header figcaption {
-				text-align: center;
 			}
 		}
 
