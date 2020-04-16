@@ -50,7 +50,7 @@ func NonReadableArticleHTML() string {
 		<style>%s</style>
 	</head>
 	<body>
-	  <header>
+	  <header id="article-header">
 			<h1>Failed to archive</h1>
 			<div class="source-info">
 				<div>Tried at {{.ArchivedAt}}</div>
