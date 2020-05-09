@@ -75,25 +75,25 @@ Easiest way to read oldest article would be to create alias for command line:
 alias bp-read='open `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`'
 ```
 
-Also alias for archival makes sense:
+Also function for archival makes sense:
 
 ```sh
-alias bp-archive='mkdir -p `backpocket path`/archive && mv -v `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive'
+function bp-archive() { mkdir -p `backpocket path`/archive && ( if [[ -z $1 ]]; then mv -v `ls $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive; else mv -v $1 `backpocket path`/archive; fi ) }
 ```
 
-And create a function for search:
+And a function for search:
 
 ```sh
 function bp-search() { grep -noiRE ".{0,70}$1.{0,70}" `backpocket path` }
 ```
 
-And why not create an alias for the backpocket:
+And why not create an alias for the backpocket itself while we're at it:
 
 ```sh
 alias bp=backpocket
 ```
 
-And now just use these aliases:
+And now just use these commands:
 
 ```sh
 $ bp 'ARTICLE_URL'
@@ -150,16 +150,8 @@ support then it also works without any problems on Windows. However, if you
 need to use any UNIX tools described in this README then use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10) or some
 other Linux subsystem on Windows.
 
-There are some tricks which need to be done under WSL Ubuntu so that aliases written above would work.
-
-For reading:
+There is one special trick under WSL Ubuntu so that function `bp-read` defined above would work correctly since path conversion from WSL to Windows needs to be performed:
 
 ```sh
-alias bp-read='cmd.exe /c start $(wslpath -aw `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`)'
-```
-
-For archival:
-
-```sh
-alias bp-archive='mkdir -p $(backpocket path)/archive && mv -v `ls $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive'
+function bp-read() { if [[ -z $1 ]]; then cmd.exe /c start $(wslpath -aw `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`); else cmd.exe /c start $(wslpath -aw $1); fi; }
 ```
