@@ -60,22 +60,31 @@ You can configure storage dir by editing backpocket configuration file `config.j
 
 ## What about full text search?!
 
-Easy!
+Easy, use [ripgrep](https://github.com/BurntSushi/ripgrep) for that!
 
 ```sh
-$ grep -niR 'trump' $(backpocket path)
+$ rg -ni 'trump' $(backpocket path)
 ```
 
+For better search, convert all html's to text first and search over these! See below.
 
 ## Aliases for reading, archiving and searching
 
-Easiest way to read oldest article would be to create alias for command line:
+Add all the following aliases/functions to your `.bashrc`, `.zshrc` or to another scripts which are executed on login.
+
+ * First create a function for the backpocket itself, which creates in addition to .html a .txt version of each article for faster searching (requires [html2text](https://github.com/grobian/html2text) to be installed):
+
+```sh
+function bp() { ARTICLE_PATH=$(backpocket $1) && echo $ARTICLE_PATH && html2text -style pretty -o $ARTICLE_PATH.txt $ARTICLE_PATH }
+```
+
+* Easiest way to read oldest article would be to create an alias:
 
 ```sh
 alias bp-read='open `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`'
 ```
 
-Also function for archival makes sense:
+* Also function for archival makes sense:
 
 ```sh
 function bp-archive() { mkdir -p `backpocket path`/archive && ( if [[ -z $1 ]]; then mv -v `ls $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive; else mv -v $1 `backpocket path`/archive; fi ) }
@@ -84,13 +93,7 @@ function bp-archive() { mkdir -p `backpocket path`/archive && ( if [[ -z $1 ]]; 
 And a function for search:
 
 ```sh
-function bp-search() { grep -noiRE ".{0,70}$1.{0,70}" `backpocket path` }
-```
-
-And why not create an alias for the backpocket itself while we're at it:
-
-```sh
-alias bp=backpocket
+function bp-search() { rg -ni "$1" `backpocket path`/**/*.txt }
 ```
 
 And now just use these commands:
@@ -100,15 +103,6 @@ $ bp 'ARTICLE_URL'
 $ bp-read
 $ bp-archive
 $ bp-search 'TERM'
-```
-
-
-## What about showing only text instead of HTML?
-
-Just use html2text together with other UNIX tools:
-
-```sh
-$ cat examples/successful.html | sed 's/<img.*//g' | html2text | less
 ```
 
 
