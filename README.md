@@ -87,7 +87,7 @@ alias bp-read='open `ls -Adp $(backpocket path)/* | grep -v "/$" | head -1`'
 * Also function for archival makes sense:
 
 ```sh
-function bp-archive() { mkdir -p `backpocket path`/archive && ( if [[ -z $1 ]]; then mv -v `ls $(backpocket path)/* | grep -v "/$" | head -1` `backpocket path`/archive; else mv -v $1 `backpocket path`/archive; fi ) }
+function bp-archive() { mkdir -p `backpocket path`/archive && ( if [[ -z $1 ]]; then ARTICLE_PATH=`ls $(backpocket path)/* | grep -v "/$" | head -1` && mv -v "$ARTICLE_PATH" `backpocket path`/archive && test -f "$ARTICLE_PATH.txt" && mv "$ARTICLE_PATH.txt" `backpocket path`/archive; else mv -v $1 `backpocket path`/archive && test -f $1.txt && mv $1.txt `backpocket path`/archive; fi ) }
 ```
 
 And a function for search:
