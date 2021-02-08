@@ -124,10 +124,11 @@ cat ril_export.html | pup 'ul:first-of-type a json{}' | jq -r '.[] | "\(.href) \
 ```
 
 This all might take some time depending on the count of articles, size of
-articles, speed of your internet connection and so on. Also, please not that
+articles, speed of your internet connection and so on. Also, please note that
 there's a high probability that many of the articles saved to the Pocket in the
-past do not exist anymore in the Internet will be saved as failed articles - that's the problem with Internet and that's exactly the reason why archiving interesting/important things on your local disk makes sense in case you ever
-want to return to any content.
+past do not exist in the Internet anymore and will be saved as a failed articles - that's the problem with Internet
+and exactly the reason why archiving interesting/important things on your local disk makes sense in case you ever
+want to return to any of that content.
 
 
 ## Backup, syncing, mobile support etc.
