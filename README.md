@@ -122,6 +122,10 @@ mkdir -p `backpocket path`/archive && mv $(ls -Adp `backpocket path`/* | grep -v
 ```sh
 cat ril_export.html | pup 'ul:first-of-type a json{}' | jq -r '.[] | "\(.href) \(.time_added)"' | tail -r | xargs -P4 -L1 backpocket
 ```
+6. (Optional) Run the following command to create `.txt` versions for each `.html` article for better searching functionality (see [Alias for searching](https://github.com/jarmo/backpocket#aliases-for-reading-archiving-and-searching)) using [html2text](https://github.com/grobian/html2text):
+```
+find $(backpocket path) -name "*.html" | xargs -I % html2text -o %.txt -style pretty %
+```
 
 This all might take some time depending on the count of articles, size of
 articles, speed of your internet connection and so on. Also, please note that
