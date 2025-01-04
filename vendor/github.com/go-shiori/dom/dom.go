@@ -2,10 +2,122 @@ package dom
 
 import (
 	"bytes"
+	"regexp"
 	"strings"
 
+	"github.com/andybalholm/cascadia"
 	"golang.org/x/net/html"
 )
+
+var (
+	rxPunctuation      = regexp.MustCompile(`\s+([.?!,;])\s*(\S*)`)
+	rxTempNewline      = regexp.MustCompile(`\s*\|\\/\|\s*`)
+	rxDisplayNone      = regexp.MustCompile(`(?i)display:\s*none`)
+	rxVisibilityHidden = regexp.MustCompile(`(?i)visibility:\s*(:?hidden|collapse)`)
+)
+
+// QuerySelectorAll returns array of document's elements that match
+// the specified group of selectors.
+func QuerySelectorAll(doc *html.Node, selectors string) []*html.Node {
+	matcher, err := cascadia.ParseGroup(selectors)
+	if err != nil {
+		return nil
+	}
+
+	return cascadia.QueryAll(doc, matcher)
+}
+
+// QuerySelector returns the first document's element that match
+// the specified group of selectors.
+func QuerySelector(doc *html.Node, selectors string) *html.Node {
+	matcher, err := cascadia.ParseGroup(selectors)
+	if err != nil {
+		return nil
+	}
+
+	return cascadia.Query(doc, matcher)
+}
+
+// GetElementByID returns a Node object representing the element whose id
+// property matches the specified string.
+func GetElementByID(doc *html.Node, id string) *html.Node {
+	if id == "" {
+		return nil
+	}
+
+	var results []*html.Node
+	var finder func(*html.Node)
+
+	finder = func(node *html.Node) {
+		nodeID := GetAttribute(node, "id")
+		nodeID = strings.TrimSpace(nodeID)
+
+		if node.Type == html.ElementNode && nodeID == id {
+			results = append(results, node)
+		}
+
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			finder(child)
+		}
+	}
+
+	for child := doc.FirstChild; child != nil; child = child.NextSibling {
+		finder(child)
+
+		if len(results) > 0 {
+			return results[0]
+		}
+	}
+
+	return nil
+}
+
+// GetElementsByClassName returns an array of all child elements which
+// have all of the given class name(s).
+func GetElementsByClassName(doc *html.Node, classNames string) []*html.Node {
+	// Convert class name to map
+	classes := map[string]struct{}{}
+	for _, class := range strings.Fields(classNames) {
+		classes[class] = struct{}{}
+	}
+
+	nClasses := len(classes)
+	if nClasses == 0 {
+		return nil
+	}
+
+	// Create finder method
+	var results []*html.Node
+	var finder func(*html.Node)
+	allClassExist := func(node *html.Node) bool {
+		matchCount := 0
+		nodeClasses := GetAttribute(node, "class")
+		for _, nodeClass := range strings.Fields(nodeClasses) {
+			if _, exist := classes[nodeClass]; exist {
+				matchCount++
+			}
+		}
+
+		return matchCount == nClasses
+	}
+
+	finder = func(node *html.Node) {
+		if node.Type == html.ElementNode && allClassExist(node) {
+			results = append(results, node)
+		}
+
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			finder(child)
+		}
+	}
+
+	// Check all nodes
+	for child := doc.FirstChild; child != nil; child = child.NextSibling {
+		finder(child)
+	}
+
+	return results
+}
 
 // GetElementsByTagName returns a collection of all elements in the document with
 // the specified tag name, as an array of Node object.
@@ -142,6 +254,52 @@ func TextContent(node *html.Node) string {
 	return buffer.String()
 }
 
+// InnerText in JS used to capture text from an element while excluding text from hidden
+// children. A child is hidden if it's computed width is 0, whether because its CSS (e.g
+// `display: none`, `visibility: hidden`, etc), or if the child has `hidden` attribute.
+// Since we can't compute stylesheet, we only look at `hidden` attribute and inline style.
+//
+// Besides excluding text from hidden children, difference between this function and
+// `TextContent` is the latter will skip <br> tag while this function will preserve
+// <br> as newline.
+func InnerText(node *html.Node) string {
+	var buffer bytes.Buffer
+	var finder func(*html.Node)
+
+	finder = func(n *html.Node) {
+		switch n.Type {
+		case html.TextNode:
+			buffer.WriteString(" " + n.Data + " ")
+
+		case html.ElementNode:
+			if n.Data == "br" {
+				buffer.WriteString(`|\/|`)
+				return
+			}
+
+			if HasAttribute(n, "hidden") {
+				return
+			}
+
+			styleAttr := GetAttribute(n, "style")
+			if rxDisplayNone.MatchString(styleAttr) || rxVisibilityHidden.MatchString(styleAttr) {
+				return
+			}
+		}
+
+		for child := n.FirstChild; child != nil; child = child.NextSibling {
+			finder(child)
+		}
+	}
+
+	finder(node)
+	text := buffer.String()
+	text = strings.Join(strings.Fields(text), " ")
+	text = rxPunctuation.ReplaceAllString(text, "$1 $2")
+	text = rxTempNewline.ReplaceAllString(text, "\n")
+	return text
+}
+
 // OuterHTML returns an HTML serialization of the element and its descendants.
 // The returned HTML value is escaped.
 func OuterHTML(node *html.Node) string {
@@ -269,11 +427,9 @@ func NextElementSibling(node *html.Node) *html.Node {
 // existing node in the document, AppendChild() moves it from its
 // current position to the new position.
 func AppendChild(node *html.Node, child *html.Node) {
-	if child.Parent != nil {
-		temp := CloneNode(child)
-		node.AppendChild(temp)
-		child.Parent.RemoveChild(child)
-	} else {
+	// Make sure node is not void
+	if !IsVoidElement(node) {
+		DetachChild(child)
 		node.AppendChild(child)
 	}
 }
@@ -281,42 +437,37 @@ func AppendChild(node *html.Node, child *html.Node) {
 // PrependChild works like AppendChild() except it adds a node to the
 // beginning of the list of children of a specified parent node.
 func PrependChild(node *html.Node, child *html.Node) {
-	if child.Parent != nil {
-		temp := CloneNode(child)
-		child.Parent.RemoveChild(child)
-		child = temp
-	}
-
-	if node.FirstChild != nil {
-		node.InsertBefore(child, node.FirstChild)
-	} else {
-		node.AppendChild(child)
+	// Make sure node is not void
+	if !IsVoidElement(node) {
+		DetachChild(child)
+		if node.FirstChild != nil {
+			node.InsertBefore(child, node.FirstChild)
+		} else {
+			node.AppendChild(child)
+		}
 	}
 }
 
 // ReplaceChild replaces a child node within the given (parent) node.
 // If the new child is already exist in document, ReplaceChild() will move it
 // from its current position to replace old child. Returns both the new and old child.
+//
+// TODO: I'm note sure but I *think* there are some issues here. Check later I guess.
 func ReplaceChild(parent *html.Node, newChild *html.Node, oldChild *html.Node) (*html.Node, *html.Node) {
-	if parent == nil {
-		return nil, nil
+	// Make sure parent is specified and not void
+	if parent == nil && !IsVoidElement(parent) {
+		return newChild, oldChild
 	}
 
+	// Make sure the specified parent IS the parent of the old child
 	if oldChild.Parent != parent {
-		return nil, nil
+		return newChild, oldChild
 	}
 
-	if newChild.Parent != nil {
-		tmp := CloneNode(newChild)
-		newChild.Parent.RemoveChild(newChild)
-		newChild = tmp
-	}
-
-	newChild.PrevSibling = nil
-	newChild.NextSibling = nil
+	// Detach the new child
+	DetachChild(newChild)
 	parent.InsertBefore(newChild, oldChild)
 	parent.RemoveChild(oldChild)
-
 	return newChild, oldChild
 }
 
@@ -330,20 +481,20 @@ func IncludeNode(nodeList []*html.Node, node *html.Node) bool {
 	return false
 }
 
-// CloneNode returns a deep clone of the node and its children.
-// However, it will be detached from the original's parents
-// and siblings.
-func CloneNode(src *html.Node) *html.Node {
+// Clone returns a clone of the node and (if specified) its children.
+// However, it will be detached from the original's parents and siblings.
+func Clone(src *html.Node, deep bool) *html.Node {
 	clone := &html.Node{
 		Type:     src.Type,
 		DataAtom: src.DataAtom,
 		Data:     src.Data,
-		Attr:     make([]html.Attribute, len(src.Attr)),
+		Attr:     append([]html.Attribute{}, src.Attr...),
 	}
 
-	copy(clone.Attr, src.Attr)
-	for child := src.FirstChild; child != nil; child = child.NextSibling {
-		clone.AppendChild(CloneNode(child))
+	if deep {
+		for child := src.FirstChild; child != nil; child = child.NextSibling {
+			clone.AppendChild(Clone(child, deep))
+		}
 	}
 
 	return clone
@@ -381,6 +532,10 @@ func RemoveNodes(nodeList []*html.Node, filterFn func(*html.Node) bool) {
 
 // SetTextContent sets the text content of the specified node.
 func SetTextContent(node *html.Node, text string) {
+	if IsVoidElement(node) {
+		return
+	}
+
 	child := node.FirstChild
 	for child != nil {
 		nextSibling := child.NextSibling
@@ -392,4 +547,76 @@ func SetTextContent(node *html.Node, text string) {
 		Type: html.TextNode,
 		Data: text,
 	})
+}
+
+// SetInnerHTML sets inner HTML of the specified node.
+func SetInnerHTML(node *html.Node, rawHTML string) {
+	// Parse raw HTML
+	parsedHTML, err := html.Parse(strings.NewReader(rawHTML))
+	if err != nil || parsedHTML == nil {
+		return
+	}
+
+	// Remove node's current children
+	child := node.FirstChild
+	for child != nil {
+		nextSibling := child.NextSibling
+		node.RemoveChild(child)
+		child = nextSibling
+	}
+
+	// Put content of parsed HTML to the node
+	if body := QuerySelector(parsedHTML, "body"); body != nil {
+		bodyChild := body.FirstChild
+		for bodyChild != nil {
+			nextSibling := bodyChild.NextSibling
+			AppendChild(node, bodyChild)
+			bodyChild = nextSibling
+		}
+	}
+}
+
+// IsVoidElement check whether a node can have any contents or not.
+// Return true if element is void (can't have any children).
+func IsVoidElement(n *html.Node) bool {
+	// If it's not element, it's void
+	if n.Type != html.ElementNode {
+		return true
+	}
+
+	// Check tag name
+	switch n.Data {
+	case "area", "base", "br", "col", "embed", "hr",
+		"img", "input", "keygen", "link", "meta",
+		"param", "source", "track", "wbr":
+		return true
+	default:
+		return false
+	}
+}
+
+func DetachChild(child *html.Node) {
+	if child.Parent != nil || child.PrevSibling != nil || child.NextSibling != nil {
+		if child.Parent != nil {
+			if child.Parent.FirstChild == child {
+				child.Parent.FirstChild = child.NextSibling
+			}
+
+			if child.Parent.LastChild == child {
+				child.Parent.LastChild = child.PrevSibling
+			}
+		}
+
+		if child.PrevSibling != nil {
+			child.PrevSibling.NextSibling = child.NextSibling
+		}
+
+		if child.NextSibling != nil {
+			child.NextSibling.PrevSibling = child.PrevSibling
+		}
+
+		child.Parent = nil
+		child.PrevSibling = nil
+		child.NextSibling = nil
+	}
 }

@@ -1,15 +1,36 @@
-# github.com/go-shiori/dom v0.0.0-20200325044552-dcb2bfb8d4d8
+# github.com/andybalholm/cascadia v1.3.2
+github.com/andybalholm/cascadia
+# github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
+github.com/araddon/dateparse
+# github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c
 github.com/go-shiori/dom
-# github.com/go-shiori/go-readability v0.0.0-20200412032726-b0a28878744a
+# github.com/go-shiori/go-readability v0.0.0-20241012063810-92284fa8a71f
 github.com/go-shiori/go-readability
-# github.com/konsorten/go-windows-terminal-sequences v1.0.2
-github.com/konsorten/go-windows-terminal-sequences
-# github.com/pinzolo/xdgdir v0.0.0-20181207033906-45fed2c52080
+github.com/go-shiori/go-readability/internal/re2go
+# github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f
+github.com/gogs/chardet
+# github.com/pinzolo/xdgdir v1.0.0
 github.com/pinzolo/xdgdir
-# github.com/sirupsen/logrus v1.5.0
-github.com/sirupsen/logrus
-# golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
+# golang.org/x/net v0.33.0
 golang.org/x/net/html
 golang.org/x/net/html/atom
-# golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd
-golang.org/x/sys/unix
+golang.org/x/net/html/charset
+# golang.org/x/text v0.21.0
+golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/htmlindex
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/unicode
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
+golang.org/x/text/internal/tag
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/language
+golang.org/x/text/runes
+golang.org/x/text/transform
+golang.org/x/text/unicode/norm

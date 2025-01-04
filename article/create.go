@@ -25,7 +25,7 @@ func Create(storageDir string, params ArticleParams) string {
 					if metaRefreshUrl != nil {
 						return Create(storageDir, ArticleParams{Url: metaRefreshUrl, ArchivedAt: params.ArchivedAt})
 					} else {
-						article, err := readability.FromReader(bytes.NewReader(content), params.Url.String())
+						article, err := readability.FromReader(bytes.NewReader(content), params.Url)
 						if err == nil {
 							return createReadableArticle(storageDir, params, article)
 						} else {

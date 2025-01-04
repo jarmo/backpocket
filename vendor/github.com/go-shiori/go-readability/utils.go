@@ -2,13 +2,8 @@ package readability
 
 import (
 	nurl "net/url"
-	"os"
 	"strings"
 	"unicode/utf8"
-
-	"github.com/go-shiori/dom"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/net/html"
 )
 
 // indexOf returns the position of the first occurrence of a
@@ -33,11 +28,17 @@ func charCount(str string) int {
 	return utf8.RuneCountInString(str)
 }
 
+// isValidURL checks if URL is valid.
+func isValidURL(s string) bool {
+	_, err := nurl.ParseRequestURI(s)
+	return err == nil
+}
+
 // toAbsoluteURI convert uri to absolute path based on base.
 // However, if uri is prefixed with hash (#), the uri won't be changed.
 func toAbsoluteURI(uri string, base *nurl.URL) string {
 	if uri == "" || base == nil {
-		return ""
+		return uri
 	}
 
 	// If it is hash tag, return as it is
@@ -65,23 +66,35 @@ func toAbsoluteURI(uri string, base *nurl.URL) string {
 	return base.ResolveReference(tmp).String()
 }
 
-// renderToFile ender an element and save it to file.
-// It will panic if it fails to create destination file.
-func renderToFile(element *html.Node, filename string) {
-	dstFile, err := os.Create(filename)
-	if err != nil {
-		logrus.Fatalln("failed to create file:", err)
+// strOr returns the first not empty string in args.
+func strOr(args ...string) string {
+	for i := 0; i < len(args); i++ {
+		if args[i] != "" {
+			return args[i]
+		}
 	}
-	defer dstFile.Close()
-	html.Render(dstFile, element)
+	return ""
 }
 
-func parseHTMLString(str string) (*html.Node, error) {
-	doc, err := html.Parse(strings.NewReader(str))
-	if err != nil {
-		return nil, err
+func sliceToMap(strings ...string) map[string]struct{} {
+	result := make(map[string]struct{})
+	for _, s := range strings {
+		result[s] = struct{}{}
 	}
+	return result
+}
 
-	body := dom.GetElementsByTagName(doc, "body")[0]
-	return body, nil
+func strFilter(strs []string, filter func(string) bool) []string {
+	var result []string
+	for _, s := range strs {
+		if filter(s) {
+			result = append(result, s)
+		}
+	}
+	return result
+}
+
+func trim(s string) string {
+	s = strings.Join(strings.Fields(s), " ")
+	return strings.TrimSpace(s)
 }

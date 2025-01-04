@@ -7,7 +7,7 @@
 
 ## Description
 
-[XDG Base directories](https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html) for Golang
+XDG Based direcotry fo Golang
 
 ## Install
 

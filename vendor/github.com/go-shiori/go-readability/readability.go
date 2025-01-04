@@ -9,36 +9,35 @@
 package readability
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net/http"
 	nurl "net/url"
 	"strings"
 	"time"
+
+	"golang.org/x/net/html"
 )
 
-// FromReader parses input from an `io.Reader` and returns the
-// readable content. It's the wrapper for `Parser.Parse()` and useful
-// if you only want to use the default parser.
-func FromReader(input io.Reader, pageURL string) (Article, error) {
+// FromReader parses an `io.Reader` and returns the readable content. It's the wrapper
+// or `Parser.Parse()` and useful if you only want to use the default parser.
+func FromReader(input io.Reader, pageURL *nurl.URL) (Article, error) {
 	parser := NewParser()
 	return parser.Parse(input, pageURL)
 }
 
-// IsReadable decides whether or not the document is reader-able
-// without parsing the whole thing. It's the wrapper for
-// `Parser.IsReadable()` and useful if you only use the default parser.
-func IsReadable(input io.Reader) bool {
+// FromDocument parses an document and returns the readable content. It's the wrapper
+// or `Parser.ParseDocument()` and useful if you only want to use the default parser.
+func FromDocument(doc *html.Node, pageURL *nurl.URL) (Article, error) {
 	parser := NewParser()
-	return parser.IsReadable(input)
+	return parser.ParseDocument(doc, pageURL)
 }
 
-// FromURL fetch the web page from specified url, check if it's
-// readable, then parses the response to find the readable content.
+// FromURL fetch the web page from specified url then parses the response to find
+// the readable content.
 func FromURL(pageURL string, timeout time.Duration) (Article, error) {
 	// Make sure URL is valid
-	_, err := nurl.ParseRequestURI(pageURL)
+	parsedURL, err := nurl.ParseRequestURI(pageURL)
 	if err != nil {
 		return Article{}, fmt.Errorf("failed to parse URL: %v", err)
 	}
@@ -57,15 +56,22 @@ func FromURL(pageURL string, timeout time.Duration) (Article, error) {
 		return Article{}, fmt.Errorf("URL is not a HTML document")
 	}
 
-	// Check if the page is readable
-	var buffer bytes.Buffer
-	tee := io.TeeReader(resp.Body, &buffer)
-
-	parser := NewParser()
-	if !parser.IsReadable(tee) {
-		return Article{}, fmt.Errorf("the page is not readable")
-	}
-
 	// Parse content
-	return parser.Parse(&buffer, pageURL)
+	parser := NewParser()
+	return parser.Parse(resp.Body, parsedURL)
+}
+
+// Check checks whether the input is readable without parsing the whole thing. It's the
+// wrapper for `Parser.Check()` and useful if you only use the default parser.
+func Check(input io.Reader) bool {
+	parser := NewParser()
+	return parser.Check(input)
+}
+
+// CheckDocument checks whether the document is readable without parsing the whole thing.
+// It's the wrapper for `Parser.CheckDocument()` and useful if you only use the default
+// parser.
+func CheckDocument(doc *html.Node) bool {
+	parser := NewParser()
+	return parser.CheckDocument(doc)
 }
