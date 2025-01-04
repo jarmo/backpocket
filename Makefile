@@ -1,7 +1,6 @@
 BINARY = backpocket
 GOARCH = amd64
 GO_BUILD = GOARCH=${GOARCH} go build -mod=vendor
-PREFIX ?= ${GOPATH}
 
 all: clean linux darwin windows
 
@@ -24,9 +23,6 @@ darwin: vendor
 
 windows: vendor
 	GOOS=windows ${GO_BUILD} -o bin/windows_${GOARCH}/${BINARY}.exe
-
-install:
-	cp -Rf bin/ "${PREFIX}/bin"
 
 release: examples all
 	script/release.sh
