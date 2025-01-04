@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -x
 
 if [[ $(git status --porcelain | wc -c) -ne 0 ]]; then
   echo "Cannot release - uncommitted changes found!"
@@ -11,7 +12,7 @@ git push
 
 VERSION=v`grep "VERSION =" backpocket.go | awk '{print $4}' | tr -d '"'`
 read -rp "Enter changelog to release version $VERSION: " CHANGELOG
-RESPONSE=`http -b "https://api.github.com/repos/jarmo/backpocket/releases" Authorization:"token $GITHUB_RELEASE_TOKEN" tag_name="$VERSION" draft:=true name="backpocket $VERSION" body="$CHANGELOG"`
+RESPONSE=`http -b "https://api.github.com/repos/jarmo/backpocket/releases" Authorization:"Bearer $GITHUB_RELEASE_TOKEN" tag_name="$VERSION" draft:=true name="backpocket $VERSION" body="$CHANGELOG"`
 
 rm -rf dist
 mkdir -p dist
@@ -25,10 +26,10 @@ done
 
 RELEASE_ID=`echo $RESPONSE | jq -r .id`
 for file in `ls -d dist/*`; do
-  http -b POST "https://uploads.github.com/repos/jarmo/backpocket/releases/$RELEASE_ID/assets?name=`basename $file`" Authorization:"token $GITHUB_RELEASE_TOKEN" @$file > /dev/null
+  http -b POST "https://uploads.github.com/repos/jarmo/backpocket/releases/$RELEASE_ID/assets?name=`basename $file`" Authorization:"Bearer $GITHUB_RELEASE_TOKEN" @$file > /dev/null
 done
 
-RESPONSE=`http -b PATCH "https://api.github.com/repos/jarmo/backpocket/releases/$RELEASE_ID" Authorization:"token $GITHUB_RELEASE_TOKEN" draft:=false`
+RESPONSE=`http -b PATCH "https://api.github.com/repos/jarmo/backpocket/releases/$RELEASE_ID" Authorization:"Bearer $GITHUB_RELEASE_TOKEN" draft:=false`
 
 echo "Release done:"
 echo $RESPONSE | jq -r .html_url
