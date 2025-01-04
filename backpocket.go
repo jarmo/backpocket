@@ -10,7 +10,7 @@ import (
 	"github.com/jarmo/backpocket/config"
 )
 
-const VERSION = "1.0.0"
+const VERSION = "1.1.0"
 
 func main() {
 	if len(os.Args) == 1 {
